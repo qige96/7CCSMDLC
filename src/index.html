@@ -136,7 +136,7 @@
         ]);
         //   console.log(InfoContract)
         //0x40C96F4867475f4f68630CAB67fD8c7e76bA275F
-         var addr = '0x5BA73888351E8e5bC4e1AFF5de6994De4CeB68D7'; //contract address
+         var addr = '0x10241F86e65c97eDc4599360cB6C15475F0F2d15'; //contract address
         InfoContract.options.address = addr;
         //        var a = InfoContract.methods.getInfo()._method.outputs;
 
@@ -172,7 +172,7 @@
                console.error(error);
         });
 
-        user_addr = '0xC589962B84462f8484b9E6Cc1FdC1D4d5C8ba1D1';
+        user_addr = '0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c';
  
         $("#request").click(function () {
             var a =  InfoContract.methods.request($("#id").val()).send({from:user_addr});

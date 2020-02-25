@@ -1,5 +1,6 @@
 pragma solidity >=0.4.20 <=0.6.0;
 
+import "@openzeppelin/contracts/access/roles/WhitelistedRole.sol";
 
 contract SimpleResourceAllocation3 {
 
@@ -8,15 +9,15 @@ contract SimpleResourceAllocation3 {
     
     // resource ownership of alll users
     mapping(address => mapping(uint => bool)) internal ownership;
-    
+
     constructor (uint[] memory initQuotes) public {
         quotes = initQuotes;
     }
     
-    // request resource from system
-    // @param _resId:  unsigned integer - the Id of the resource wanted
-    // @return _success: bool - success status of this transaction
-    function request(uint _resId) public returns (bool _success) {
+    /// @dev request resource from system
+    /// @param _resId  unsigned integer - the Id of the resource wanted
+    /// @return _success bool - success status of this transaction
+    function request(uint _resId) public  returns (bool _success) {
         require(_resId >= 0 && _resId < quotes.length, "Invalid resource Id!");
         require(ownership[msg.sender][_resId] == false, "You have allocated this resource!");
         if (quotes[_resId] > 0) {
@@ -28,9 +29,9 @@ contract SimpleResourceAllocation3 {
         }
     }
     
-    // release resource to the system
-    // @param _resId:  unsigned integer - the Id of the resource to be released
-    // @return _success: bool - success status of this transaction
+    /// @dev release resource to the system
+    /// @param _resId  unsigned integer - the Id of the resource to be released
+    /// @return _success bool - success status of this transaction
     function release(uint _resId) public returns (bool _success) {
         require(_resId >= 0 && _resId < quotes.length, "Invalid resource Id!");
         require(ownership[msg.sender][_resId] == true, "You dont't have this resource to release!");
@@ -39,20 +40,20 @@ contract SimpleResourceAllocation3 {
         _success = true;
     }
     
-    // query the quote of all available resources 
-    // @return _allQuotes: array - current quote of all resources
-    function viewAllQuotes() public view returns (uint[] memory _allQuotes) {
-        _allQuotes = quotes;
+    /// @dev query the quote of all available resources 
+    /// @return _allQuotes array - current quote of all resources
+    function viewAllQuotes() external view returns (uint[] memory) {
+        return quotes;
     }
     
-    // query my resources 
-    // @return _myResources: array - tell what resources I have had
-    function viewMyResources() public view returns (bool[] memory _myResources) {
+    /// @dev query my resources 
+    /// @return _myResources array - tell what resources I have had
+    function viewMyResources() external view returns (bool[] memory) {
         bool[] memory temp = new bool[](quotes.length);
         for (uint i = 0; i < quotes.length; i++) {
             temp[i] = ownership[msg.sender][i];
         }
-        _myResources = temp;
+        return temp;
     }
     
 }
