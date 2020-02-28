@@ -5,7 +5,7 @@ let web3 = new Web3(window.ethereum)
 let resalocContractInstance = new web3.eth.Contract(ABI, address)
 let account = window.ethereum.selectedAddress
 
-console.log(account, window.ethereum.selectedAddress)
+// console.log(account, window.ethereum.selectedAddress)
 console.log(web3)
 console.log(resalocContractInstance)
 

@@ -8,7 +8,7 @@ import { store } from './store/'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
-if (!window.ethereum) {
+if (!window.ethereum || !window.ethereum.isMetaMask) {
   alert('Sorry, we require MetaMask installed...')
 }
 

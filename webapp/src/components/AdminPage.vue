@@ -2,7 +2,7 @@
 <template>
   <div>
     <el-row type="flex"  justify="center" align="middle">
-      <el-col :span="12">
+      <el-col :span="16">
         <h1 style="text-align: center;">ResAloc Admin Page</h1>
         <el-input type="text" v-model="toAdd">
           <el-button @click="addWhitelisted" slot="append">Add Whitelisted</el-button>
@@ -16,80 +16,72 @@
         <el-input type="text" v-model="toRemoveAdmin">
           <el-button @click="removeAdmin" slot="append" type="danger">Del Admin</el-button>
         </el-input>
+        <el-input type="text" v-model="isWhite">
+          <el-button @click="isWhiteListed" slot="append" type="danger">Is Whitelisted?</el-button>
+        </el-input>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-import { resalocContractInstance, account } from '../../utils/getContractAndAccount'
+import { resalocContractInstance } from '../../utils/getContractAndAccount'
 
 export default {
+  props: ['account'],
   data () {
     return {
-      account: account,
       toAdd: null,
       toRemove: null,
       toAddAdmin: null,
-      toRemoveAdmin: null
+      toRemoveAdmin: null,
+      isWhite: null
     }
-  },
-  mounted () {
-    let that = this
-    window.ethereum.on('accountsChanged', function (accounts) {
-      // Time to reload your interface with accounts[0]!
-      console.log(accounts)
-      that.account = accounts[0]
-    })
   },
   methods: {
     addWhitelisted () {
-      resalocContractInstance.methods.addWhitelisted(this.toAdd).send(
-        { gas: 300000, from: this.account },
-        (err, result) => {
-          if (err) {
-            console.log('err', err)
-          } else {
-            console.log(result)
-          }
-        }
-      )
+      resalocContractInstance.methods.addWhitelisted(this.toAdd).send({from: this.account})
+        .on('confirmation', function (conNum, receipt) {
+          console.log(conNum)
+        })
+        .on('error', function (err) {
+          console.log(err)
+        })
     },
     removeWhitelisted () {
-      resalocContractInstance.methods.removeWhitelisted(this.toRemove).send(
-        { gas: 300000, from: this.account },
-        (err, result) => {
-          if (err) {
-            console.log('err', err)
-          } else {
-            console.log(result)
-          }
-        }
-      )
+      console.log('llllllllllllll')
+      resalocContractInstance.methods.removeWhitelisted(this.toRemove).send({from: this.account})
+        .on('confirmation', function (conNum, receipt) {
+          console.log(conNum)
+        })
+        .on('error', function (err) {
+          console.log(err)
+        })
     },
     addAdmin () {
-      resalocContractInstance.methods.addWhitelisted(this.toAddAdmin).send(
-        { gas: 300000, from: this.account },
-        (err, result) => {
-          if (err) {
-            console.log('err', err)
-          } else {
-            console.log(result)
-          }
-        }
-      )
+      resalocContractInstance.methods.addWhitelisted(this.toAddAdmin).send({from: this.account})
+        .on('confirmation', function (conNum, receipt) {
+          console.log(conNum)
+        })
+        .on('error', function (err) {
+          console.log(err)
+        })
     },
     removeAdmin () {
-      resalocContractInstance.methods.removeWhitelisted(this.toRemoveAdmin).send(
-        { gas: 300000, from: this.account },
-        (err, result) => {
-          if (err) {
-            console.log('err', err)
-          } else {
-            console.log(result)
-          }
-        }
-      )
+      resalocContractInstance.methods.removeWhitelisted(this.toRemoveAdmin).send({from: this.account})
+        .on('confirmation', function (conNum, receipt) {
+          console.log(conNum)
+        })
+        .on('error', function (err) {
+          console.log(err)
+        })
+    },
+    isWhiteListed () {
+      resalocContractInstance.methods.isWhitelisted(this.isWhite).call({from: this.account})
+        .then(function (result) {
+          console.log(result)
+          alert(result)
+        })
     }
   }
 }

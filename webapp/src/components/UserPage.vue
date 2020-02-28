@@ -8,7 +8,7 @@
       <el-container>
         <el-main>
           <el-row type="flex" justify="center" :gutter="20" >
-            <el-col :span=8>
+            <el-col :span=10>
               <h3>My Resources</h3>
               <el-table :data="ownData">
                 <el-table-column prop="resourceId" label="Resource Id">
@@ -20,7 +20,7 @@
                 </el-table-column>
               </el-table>
             </el-col>
-            <el-col :span=8>
+            <el-col :span=10>
               <h3>Quotes</h3>
               <el-table :data="quoteData">
                 <el-table-column prop="resourceId" label="Resource Id">
@@ -37,7 +37,7 @@
           </el-row>
         </el-main>
       </el-container>
-      <!-- <button @click="refresh">refresh</button> -->
+      <button @click="refresh">refresh</button>
       <el-footer class="footer">
         <p>7CCSMDLC Distributed ledgers and crypto-currencies(19~20 SEM2 000001)</p>
         <p>King's College London</p>
@@ -48,12 +48,12 @@
 </template>
 
 <script>
-import { resalocContractInstance, account } from '../../utils/getContractAndAccount'
+import { resalocContractInstance } from '../../utils/getContractAndAccount'
+
 export default {
+  props: ['account'],
   data () {
     return {
-      // resalocContractInstance: null,
-      account: account,
       quotes: [],
       myResourcss: [],
       reqId: null,
@@ -64,7 +64,6 @@ export default {
   computed: {
     ownData () {
       let resTable = []
-      // let i;
       for (let i in this.myResourcss) {
         if (this.myResourcss[i]) {
           resTable.push({resourceId: i})
@@ -74,7 +73,6 @@ export default {
     },
     quoteData () {
       let resTable = []
-      // let i;
       for (let i in this.quotes) {
         if (!this.myResourcss[i]) {
           resTable.push({resourceId: i, quote: this.quotes[i]})
@@ -83,14 +81,9 @@ export default {
       return resTable
     }
   },
-  mounted () {
-    let that = this
+  async mounted () {
     this.refresh()
-    window.ethereum.on('accountsChanged', function (accounts) {
-      console.log(accounts)
-      that.account = accounts[0]
-      that.refresh()
-    })
+    let that = this
     resalocContractInstance.events.successRequest(function (error, event) {
       console.log(error)
     })
@@ -112,6 +105,7 @@ export default {
   },
   methods: {
     refresh () {
+      // console.log(this.account)
       resalocContractInstance.methods.viewAllQuotes().call(
         {gas: 300000, from: this.account},
         (err, result) => {
@@ -133,30 +127,30 @@ export default {
         })
     },
     request (reqId) {
-      // console.log(this.reqId)
-      resalocContractInstance.methods.request(reqId).send(
-        { gas: 300000, from: this.account },
-        (err, result) => {
-          if (err) {
-            console.log('err', err)
-          } else {
-            console.log(result)
-          }
-        }
-      )
+      console.log('reqId', reqId)
+      resalocContractInstance.methods.request(reqId).send({from: this.account})
+        .on('transactionHash', function (TxHash) {
+          console.log(TxHash)
+        })
+        .on('confirmation', function (confirmationNumber, receipt) {
+          console.log(receipt)
+        })
+        .on('error', function (err) {
+          console.log(err)
+        })
     },
     release (relId) {
-      // console.log(this.relId)
-      resalocContractInstance.methods.release(relId).send(
-        { gas: 300000, from: this.account },
-        (err, result) => {
-          if (err) {
-            console.log('err', err)
-          } else {
-            console.log(result)
-          }
-        }
-      )
+      console.log('relId', relId)
+      resalocContractInstance.methods.release(relId).send({from: this.account})
+        .on('transactionHash', function (TxHash) {
+          console.log(TxHash)
+        })
+        .on('confirmation', function (confirmationNumber, receipt) {
+          console.log(receipt)
+        })
+        .on('error', function (err) {
+          console.log(err)
+        })
     }
   }
 }
