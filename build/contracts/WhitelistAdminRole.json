@@ -2608,7 +2608,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.21",
-  "updatedAt": "2020-02-28T17:34:55.405Z",
+  "updatedAt": "2020-02-29T22:03:29.216Z",
   "devdoc": {
     "details": "WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.",
     "methods": {},
