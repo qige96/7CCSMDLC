@@ -36,7 +36,7 @@ export default {
   methods: {
     async connectMetaMask () {
       try {
-        let addrs = await window.ethereum.send('eth_requestAccounts')
+        let addrs = await window.ethereum.send({method: 'eth_requestAccounts', param: []})
         this.account = addrs[0]
         this.connected = true
       } catch (error) {
