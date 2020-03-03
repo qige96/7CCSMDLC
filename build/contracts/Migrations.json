@@ -891,11 +891,12 @@
       "events": {},
       "links": {},
       "address": "0xC46b5DeA9A94E768C75a6D97bcc3f174dF5417aC",
-      "transactionHash": "0xb02dc13296557a97f3d312c72a6cdc7d13c6f5ca51efe9ecd9cf392ae9256e32"
+      "transactionHash": "0x49c11d17840846e419127b1a3eb7eabf5ad68b679f3546bfd48b0a2fa3c3b6ba"
     }
   },
   "schemaVersion": "3.0.21",
-  "updatedAt": "2020-02-29T22:03:29.188Z",
+  "updatedAt": "2020-03-03T15:03:33.412Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {}
   },

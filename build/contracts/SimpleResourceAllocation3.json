@@ -6623,11 +6623,12 @@
       },
       "links": {},
       "address": "0xe8DB7d6DaeA009BFCB46180612B34022a034F543",
-      "transactionHash": "0x0d58eae9f1244d57256ec6ac395efeb6aaa4fc124bb47a0058ae43c1506d5e25"
+      "transactionHash": "0x1c689efc21ebeb1586675bafad74ed51d2e818fc446a8b4a6172158a4323acec"
     }
   },
   "schemaVersion": "3.0.21",
-  "updatedAt": "2020-02-29T22:03:29.196Z",
+  "updatedAt": "2020-03-03T15:03:33.390Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {
       "release(uint256)": {

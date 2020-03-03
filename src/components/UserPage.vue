@@ -88,18 +88,19 @@ export default {
   methods: {
     refresh () {
       let that = this
+      console.log(this.account)
       resalocContract.deployed().then(async function (instance) {
-        const res = await instance.viewAllQuotes.call()
+        const res = await instance.viewAllQuotes.call({from: that.account})
         for (let i in res) {
           res[i] = res[i].toNumber()
         }
         that.quotes = res
-        // console.log(res)
+        console.log(res)
       })
       resalocContract.deployed().then(async function (instance) {
-        const res = await instance.viewMyResources.call()
+        const res = await instance.viewMyResources.call({from: that.account})
         that.myResourcss = res
-        // console.log(res)
+        console.log(res)
       })
     },
     async request (reqId) {
