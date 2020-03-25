@@ -1,5 +1,7 @@
 # A Decentralized Resource Allocation System
 
+[toc]
+
 ### Abstract
 
 Resource allocation is a commonly seen task. Typical cases are module selection, or labor division and allocation. This report first describes one widely used resource allocation model implemented by centralized architecture, followed by its weakness, and then propose a decentralized improvement by blockchain technology.
@@ -10,7 +12,7 @@ Resource allocation is a commonly seen task. Typical cases are module selection,
 
 One process for resource allocation task is that, initially users claim their request, and then users could get the resources they needed if there are enough resource, or otherwise resources would be randomly allocated to users demanded. After that users could release the resources they don't want any more, and compete for spare resources, usually in a "First Come First Serve" order.
 
-Often this model implemented by a client-server architecture. Inherently it has some weakness. First of all, allocation results might be manipulated by central authority. And from the technical perspective, Dos attack to the central server, or burst traffic, is always an annoying problem. 
+Often this model implemented by a centralised client-server architecture. Inherently it has some weakness. First of all, allocation results might be manipulated by central authority. And from the technical perspective, Dos attack to the central server, or burst traffic, is always an annoying problem.
 
 We could improve the model above by blockchain technology. Since blockchain is a decentralized architecture, the weakness inherited from C/S architecture would be solved naturally. 
 
@@ -105,7 +107,9 @@ The whole system consists of two main parts: the contracts living on Ethereum, a
 
 In this system, smart contracts take the responsibility of storing data and`handling business logic. The blockchain platform we use, Ethereum, support multiple language for writing smart contracts, such as Solidity, Vyper, Bamboo, Flint, and so on. In this project, we use the JavaScript-like language, Solidity, to implement our smart contracts, because it is currently the most popular development language for Ethereum decentralised applications (Dapp), so that we could easily get support from many useful third party libraries online.
 
-The contract part in this system has mainly two contract files, corresponding to the two stages in our resources allocation model. 
+The contract part in this system has mainly two contract files, corresponding to the two stages in our resources allocation model. Below are the simple API design for the two files. For the complete code, please refer to Appendix.
+
+**Contract API for first-stage.sol**
 
 ```javascript
 // File: FirstStage.sol 
@@ -159,7 +163,7 @@ contract FirstStage is WhitelistedRole {
 }
 ```
 
-`
+**Contract API for second-stage.sol**
 
 ```javascript
 // File: SecondStage.sol
@@ -204,21 +208,34 @@ contract SecondStage is WhitelistedRole {
 }
 ```
 
-For the complete code, please refer to Appendix.
+During development, there are some points worth noticing. 
 
+- Random number. It is a very difficult problem to create random numbers for smart contract living in a blockchain. Currently the state-of-the-art solution is to use an "oracle" outside of blockchain to generate random numbers for smart contracts. In out project, we adopt a simple approach to generate pseudo-random numbers: hash the time and mod upper bound number.
 
+  ```js
+  function randint (uint _min, uint _max) public view returns (uint) {
+      bytes memory rand = toBytes(now);
+      return uint(keccak256(rand)) % (_max - _min) + _min;
+  }
+  ```
 
-#### Web App
+  It should be pointed out that this approach is not a safe solution, so industrial product would not use this method. 
 
+- Passive triggering. One feature of smart contract in blockchain is that it will  execute only when somebody triggers it, or otherwise it will never execute. Because of that, some functionalities in ordinary programs are difficult or maybe impossible to implement in smart contracts. For example,  it is a common task to set timed tasks that will be executed automatically when it hits the time. Yet this simple task cannot be implemented in our Dapp. Thus, at the end of the first stage, system administrators are required to manually execute the initial allocation job. 
 
+#### Web App Client
 
-### Ethereum
+Client software served as a user interface. To simplify usage and improve user experience, client software should be able to hide low level complex operations, like encoding, signature, and verification from ordinary users. There could be various forms of client software, and web app is currently the most popular and convenient form.
 
-Introduction and the role of Ethereum in this project.
+One thing to be noted is that, "smart contract + client software" is also a kind of Client/Server architecture, but it is not centralised because in the server side is not one central server, but a set of server nodes that provide identical services. In fact, one could run the Ethereum environment on his own computer, so that his own computer become a server node that maintain the blockchain together with other nodes in the network.
 
-### MetaMask
+![webapp](./webapp.png)
 
-MetaMask is a browser extension that support both Chrome, Firefox, and other modern browsers. It is an Ethereum wallet system that provides functionalities for managing Ethereum accounts and handling transactions. 
+In our system, we embed a third party software, MetaMask. MetaMask is a browser extension that support both Chrome, Firefox, and other modern browsers. It is an Ethereum wallet system that provides functionalities for managing Ethereum accounts and handling transactions. 
+
+<img src="./metamask.png" alt="metamask" style="zoom:50%;" />
+
+With the help of MetaMask, we could safely ignore the low level technical issues, and focus on business logic, and interaction experience.
 
 ## Running Example
 
@@ -230,9 +247,11 @@ At the beginning, administrators should obtain relative statistics, like what an
 
 After that, students begin to express their intent to interested modules, by submitting applications. When it hits the deadline, administrators end the first stage, by manually triggering the contract to perform initial allocation. During this operation, the system collects all the students' intent to their interested modules, and check the module quotes: if their are more modules than respective applicants, then the system directly allocate all modules to these applicants. Otherwise, the system randomly allocate all modules to some of the respective applicants. Then the allocation process enters the second stage, when students could request for still available modules in the system, or release the modules that are not wanted any more. When it hits the deadline, administrators transfer the final result on the blockchain to central database, and thus the whole module selection process ends. 
 
-## Why this works?
+## <s>Why this works?</s>
 
-Combined with mechanism of blockchain to explain the usefulness of this system.
+<s>Combined with mechanism of blockchain to explain the usefulness of this system.</s>
 
+## Conclusion
 
+In this report, we  proposed a decentralised resource allocation system. We started with describing a centralised  resource allocation model, and discussing its drawbacks: manipulation by central authority, vulnerability to DoS attack, and so on. To solve these problems, we proposed a decentralised system architecture using blockchain technologies. Next, we analysed project requirements and present a draft of system design. We implemented this system on the famous blockchain development platform Ethereum, with a Web App as the user interface. We also went through this decentralised model with a university module selection example. Our system is still a prototype, but we believe that our solution could be effective in solving those problems in the real world.
 
