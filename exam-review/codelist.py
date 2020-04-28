@@ -33,11 +33,11 @@ def bin_frac(fractional, precision=4):
 
 # print(bin_int(25)+'.'+bin_frac(0.3125))
 
-def encode(lo, hi, num, bits):
+def encode(lo, hi, num, N_bits):
     '''encode an integer to a binary string within a given range'''
-    assert num>=lo and num<=hi, "num out of domain"
-    mapping = round(((num-lo) / (hi-lo))* (2**bits - 1))
-    return bin_int(mapping).zfill(bits)
+    assert num>=lo and num<=hi, "num {0} out of domain [{1}, {2}]".format(num, lo, hi)
+    mapping = round(((num-lo) / (hi-lo))* (2**N_bits - 1))
+    return bin_int(mapping).zfill(N_bits)
 
 def decode(lo, hi, gene):
     '''decode a binary string to a number within a given range'''
