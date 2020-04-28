@@ -1,3 +1,11 @@
+'''
+Implementation of some algorithms in GA,
+a suppliment of KCL BIM lecture notes
+
+@ Author: Ricky Zhu
+@ email:  rickyzhu@foxmail.com
+'''
+
 def bin_int(integer):
     '''convert integer to binary string'''
     if integer == 0:
@@ -31,9 +39,9 @@ def encode(lo, hi, num, bits):
     mapping = round(((num-lo) / (hi-lo))* (2**bits - 1))
     return bin_int(mapping).zfill(bits)
 
-def decode(lo, hi, chrom, bits):
+def decode(lo, hi, gene):
     '''decode a binary string to a number within a given range'''
-    return int(lo + int(chrom, 2)*((hi-lo)/(2**bits)))
+    return int(lo + int(gene, 2)*((hi-lo)/(2**len(gene)-1)))
 
 def binary2grey(bstr):
     '''convert an odinary binary string into a gray code form'''
