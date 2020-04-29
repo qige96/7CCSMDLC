@@ -34,14 +34,14 @@ def bin_frac(fractional, precision=4):
 # print(bin_int(25)+'.'+bin_frac(0.3125))
 
 def encode(lo, hi, num, N_bits):
-    '''encode an integer to a binary string within a given range'''
+    '''encode an number to a binary string within a given range'''
     assert num>=lo and num<=hi, "num {0} out of domain [{1}, {2}]".format(num, lo, hi)
     mapping = round(((num-lo) / (hi-lo))* (2**N_bits - 1))
     return bin_int(mapping).zfill(N_bits)
 
-def decode(lo, hi, gene):
+def decode(lo, hi, gene, precision=2):
     '''decode a binary string to a number within a given range'''
-    return int(lo + int(gene, 2)*((hi-lo)/(2**len(gene)-1)))
+    return round(lo + int(gene, 2)*((hi-lo)/(2**len(gene)-1)), precision)
 
 def binary2grey(bstr):
     '''convert an odinary binary string into a gray code form'''
@@ -162,3 +162,59 @@ def reciprocal(chrom, pos1, pos2):
     return replicate
 
 # print(reciprocal([6,1,5,3,2,4], 1, 4))
+
+
+
+# pop = [
+#     {'chr': '100011', 'val': [2, 1], 'cost': 5, 'Ncost': None, 'p': None, 'sum_p':None},
+#     {'chr': '001110', 'val': [-1, 4], 'cost': 17, 'Ncost': None, 'p': None, 'sum_p':None},
+#     {'chr': '100101', 'val': [2, 3], 'cost': 13, 'Ncost': None, 'p': None, 'sum_p':None},
+#     {'chr': '011001', 'val': [1,-1], 'cost': 2, 'Ncost': None, 'p': None, 'sum_p':None}
+# ]
+
+def mating_pool(population:list, N_keep:int)->list:
+    '''pick N_keep individuals into selection'''
+    pool = []
+    ranked_pop = population.copy()
+    ranked_pop.sort(key=lambda x:x['cost'])
+    total_Ncost = 0
+    for i in range(N_keep):
+        ranked_pop[i]['Ncost'] = ranked_pop[i]['cost'] - ranked_pop[N_keep]['cost']
+        total_Ncost += ranked_pop[i]['Ncost']
+    total_p = 0
+    for i in range(N_keep):
+        ranked_pop[i]['p'] = ranked_pop[i]['Ncost'] / total_Ncost
+        total_p += ranked_pop[i]['p']
+        ranked_pop[i]['sum_p'] = total_p
+        pool.append(ranked_pop[i])
+    return pool
+
+# print(mating_pool(pop, 2))
+
+def bga_weighted_rank_selection(mating_pool:list, r:float)->tuple:
+    assert r>=0 or r <= 1, 'r should be within [0, 1]'
+    for i in mating_pool:
+        if i['sum_p'] >= r:
+            return i
+    return None
+
+# pool = mating_pool(pop, 2)
+# print(bga_weighted_rank_selection(pool, 0))
+# print(bga_weighted_rank_selection(pool, 0.3))
+# print(bga_weighted_rank_selection(pool, 0.8))
+# print(bga_weighted_rank_selection(pool, 1))
+
+def bga_crossover(chr1:str, chr2:str, cxp1:int, cxp2=None)->tuple:
+    '''
+    single or double point crossover
+    cxp means the gaps between numbers, starting from 1
+    '''
+    if cxp2 == None:
+        cxp2 = len(chr1)
+    res1 = chr1[:cxp1] + chr2[cxp1:cxp2] + chr1[cxp2:]
+    res2 = chr2[:cxp1] + chr1[cxp1:cxp2] + chr2[cxp2:]
+    return res1, res2
+
+# print(bga_crossover('11000', '00111', 2))
+# print(bga_crossover('11000', '00111', 2, 4))
+# print(bga_crossover('11000', '00111', 1, 4))
