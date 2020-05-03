@@ -60,7 +60,8 @@ def format_logdata(log_data):
 # ======================================================
 
 
-def sequential_perceptron_learning(Y, a, labels, eta=1, max_iter=10, print_log=False):
+def sequential_perceptron_learning_with_normlisation(
+        Y, a, labels, eta=1, max_iter=10, print_log=False):
     '''
     sequential perceptron learning to train discriminant function
 
@@ -75,6 +76,31 @@ def sequential_perceptron_learning(Y, a, labels, eta=1, max_iter=10, print_log=F
     for i in range(max_iter):
         k = i % len(Y)
         if (a.dot(Y[k]) * labels[k]) < 0:  # misclassifed
+            a_new = a + eta * labels[k] * Y[k]
+        else:
+            a_new  = a
+        log_data.append([i+1, a, Y[k], a_new, labels[k], a.dot(Y[k])])
+        a = a_new
+    if print_log:
+        print(format_logdata(log_data))
+    return a
+
+def sequential_perceptron_learning_with_normlisation(
+        Y, a, labels, eta=1, max_iter=10, print_log=False):
+    '''
+    sequential perceptron learning to train discriminant function
+
+    Y:        2d array - training data in augmented notation
+    a:        1d array - initial weights
+    labels:   1d array - labels of corresponding sample in Y
+    eta:      float - learning rate
+    max_iter: int - max iterations to train
+    print_log: bool - whether to print out log data
+    '''
+    log_data = [['iteration', 'a^t', 'y^t[k]','a_new', 'labels[k]', 'g(x)']]
+    for i in range(max_iter):
+        k = i % len(Y)
+        if a.dot(Y[k]) < 0:  # misclassifed
             a_new = a + eta * labels[k] * Y[k]
         else:
             a_new  = a
@@ -106,12 +132,29 @@ def sequential_LMS_learning(Y, a, b, alpha=1, max_iter=10, print_log=False):
         print(format_logdata(log_data))
     return a
 
-def batch_perceptron_learning(Y, a, labels, learning_rate=0.1, max_iter=10, print_log=False):
+def batch_perceptron_learning_without_normalisation(
+        Y, a, labels, learning_rate=0.1, max_iter=10, print_log=False):
     log_data = [['iteration', 'a^t', 'a_new' ]]
     for i in range(max_iter):
         accumulated = 0
         for k in range(len(Y)):
             if (a.dot(Y[k]) * labels[k]) < 0:  # misclassifed
+                accumulated += learning_rate * labels[k] * Y[k]
+        a_new = a + accumulated
+        log_data.append([i+1, a, a_new])
+        a = a_new
+    if print_log:
+        print(format_logdata(log_data))
+    return a
+
+
+def batch_perceptron_learning_with_normalisation(
+        Y, a, labels, learning_rate=0.1, max_iter=10, print_log=False):
+    log_data = [['iteration', 'a^t', 'a_new' ]]
+    for i in range(max_iter):
+        accumulated = 0
+        for k in range(len(Y)):
+            if a.dot(Y[k]) < 0:  # misclassifed
                 accumulated += learning_rate * labels[k] * Y[k]
         a_new = a + accumulated
         log_data.append([i+1, a, a_new])
@@ -306,6 +349,43 @@ def MLP(x, Ws, func_a, print_log=False):
 # print(MLP(np.array([0, 1, 0, 1]), [W1, W2], func_a))
 # print(MLP(np.array([1, 1, 0, 0]), [W1, W2], func_a, True))
 
+
+def _gradient_h_o(t, z, fp_net2, y):
+    return (t-z) * fp_net2 * y
+def update_hidden_output_weights(w, eta, t, z, fp_net2, y):
+    return w + eta * _gradient_h_o(t, z, fp_net2, y)
+
+def _gradient_i_h(t, z, fp_net1, fp_net2, w2, x):
+#     print((t-z) * fp_net2 * w2, fp_net1, x)
+    return (t-z) * fp_net2 * w2 * fp_net1 * x
+def update_input_hidden_weights(w1, eta, t, z, fp_net1, fp_net2, w2, x):
+#     print( _gradient_i_h(t, z, fp_net1, fp_net2, w2, x))
+    return w1.T + eta * _gradient_i_h(t, z, fp_net1, fp_net2, w2, x)
+
+# def f(Ws):
+#     return 2/(1+np.exp(-2*Ws)) - 1
+# def fp(net):
+#     return (4*np.exp(-2*net)) / (1 + np.exp(-2*net))**2
+# def net(W, x):
+#     return W.dot(x)
+# W1 = np.array([
+#     [0.2, 0.5, 0],
+#     [0, 0.3, -0.7],
+# ])
+# W2 = np.array([-0.4, 0.8, 1.6])
+# x = np.array([0.1, 0.9])
+# t = 0.5
+
+# net1 = net(W1, np.concatenate([[1], x]))
+# y = f(net1)
+# print('net1:', net1)
+# print('y:', y)
+# net2 = net(W2.T, np.concatenate([[1], y]))
+# z = f(net2)
+# print('net2:', net2)
+# print('z:', z)
+
+# print(update_input_hidden_weights(W1[1,1], 0.25, t, z, fp(net1)[1], fp(net2), W2[2], x[0]))
 
 
 # =========================================================
