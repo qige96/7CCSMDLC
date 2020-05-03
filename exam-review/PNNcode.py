@@ -24,7 +24,30 @@ def augmented_vectors(X, normalised=False):
         return np.array([labels[i] * aug_X[i] for i in range(len(aug_X))])
     else:
         return np.hstack([np.ones(len(X)).reshape([-1,1]), X])
-    
+
+def augmented_notation(X, direction='left'):
+    '''
+    Convert dataset into augmented notation
+
+    X:         2d array - dataset to convert
+    direction: str - concat the ones on which direction of dataset
+                    must be either 'left', 'right', 'up', or 'down'
+    '''
+    if direction not in ['left', 'right', 'up', 'down']:
+        raise KeyError("direction must be one of ['left', 'right', 'up', 'down']")
+    if direction == 'left':
+        return np.hstack([np.ones(X.shape[0]).reshape([-1,1]), X])
+    if direction == 'right':
+        return np.hstack([X, np.ones(X.shape[0]).reshape([-1,1])])
+    if direction == 'up':
+        return np.vstack([np.ones(X.shape[1]).reshape([1,-1]), X])
+    # if direction == 'down':
+    return np.vstack([X, np.ones(X.shape[1]).reshape([1,-1])])
+
+def normalise(X, labels):
+    '''normalise dataset for LMS learning rule'''
+    return np.array([labels[i] * X[i] for i in range(len(X))])
+
 def format_logdata(log_data):
     '''formatize log data using pandas.DataFrame'''
     df = pd.DataFrame(data=log_data[1:], columns=log_data[0])
@@ -83,7 +106,7 @@ def sequential_LMS_learning(Y, a, b, alpha=1, max_iter=10, print_log=False):
         print(format_logdata(log_data))
     return a
 
-def batch_perceptron_learning(Y, a, labels, learning_rate=0.1, max_iter=10):
+def batch_perceptron_learning(Y, a, labels, learning_rate=0.1, max_iter=10, print_log=False):
     log_data = [['iteration', 'a^t', 'a_new' ]]
     for i in range(max_iter):
         accumulated = 0
@@ -93,9 +116,11 @@ def batch_perceptron_learning(Y, a, labels, learning_rate=0.1, max_iter=10):
         a_new = a + accumulated
         log_data.append([i+1, a, a_new])
         a = a_new
-    return log_data
+    if print_log:
+        print(format_logdata(log_data))
+    return a
 
-def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
+def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10, print_log=False):
     '''
     Widrow-Hoff (LMS) method
     '''
@@ -104,7 +129,9 @@ def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
         a_new = a - learning_rate * Y.T.dot(Y.dot(a) - b)
         log_data.append([i+1, a, a_new])
         a = a_new
-    return log_data
+    if print_log:
+        print(format_logdata(log_data))
+    return a
 
 # X = np.array([
 #     [0,0],
@@ -115,14 +142,14 @@ def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
 # ])
 # labels = np.array([1,1,1,-1,-1])
 # a = np.array([-1.5, 5, -1])
-# Y1= augmented_vectors(X)
-# print(format_logdata(batch_perceptron_learning(Y1, a, labels, 1 )))
+# Y1= augmented_notation(X)
+# batch_perceptron_learning(Y1, a, labels, 1, True)
 
 # b = np.array([2,2,2,2,2])
-# Y2 = augmented_vectors(X, normalised=True)
+# Y2 = normalise(augmented_notation(X), labels)
 # print(format_logdata(batch_LMS_learning(Y2, a, b, 0.1, 1000)))
 
-def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10):
+def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10, print_log=False):
     '''
     sequential delta learning for Linear Threshold Unit
 
@@ -133,20 +160,22 @@ def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10):
     max_iter: int - max iterations to train
     print_log: bool - whether to print out log data
     '''
-    log_data = [['iteration', 'label[k]', 'X[k]', 'w', 'H(wx)', 'eta*(label[k]-H(wx))', 'w_new']]
+    log_data = [['iteration', 'label[k]', 'X[k]', 'w', 'H(wx)',
+        'eta*(label[k]-H(wx))', 'w_new']]
     for i in range(max_iter):
         def H(wx):
             if wx > 0: return 1
             else: return 0
         k = i % len(X)
         w_new = w + eta * (labels[k] - H(w.dot(X[k]))) * X[k]
-        log_data.append([i+1, labels[k], X[k], w, H(w.dot(X[k])), eta*(labels[k]-H(w.dot(X[k]))), w_new])
+        log_data.append([i+1, labels[k], X[k], w, H(w.dot(X[k])),
+            eta*(labels[k]-H(w.dot(X[k]))), w_new])
         w = w_new
     if print_log:
         print(format_logdata(log_data))
     return w
 
-def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10):
+def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10, print_log=False):
     '''sequential Hebbian learning for negative feedback network'''
     log_data = [['iteration', 'e', 'We', 'y', 'Wy']]
     e = x
@@ -155,7 +184,9 @@ def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10):
         y = y + alpha*W.dot(e)
         log_data.append([i+1, e, W.dot(e), y, W.T.dot(y)])
         e = x - W.T.dot(y).T
-    return log_data
+    if print_log:
+        print(format_logdata(log_data))
+    return y
 
 # X = np.array([
 #     [0,2],
@@ -167,31 +198,72 @@ def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10):
 # ])
 # labels = np.array([1,1,1,0,0,0])
 # w = np.array([1, 0, 0])
-# aug_X = augmented_vectors(X)
-# print(format_logdata(sequential_delta_learning(aug_X, w, labels, 1, 13)))
+# aug_X = augmented_notation(X)
+# sequential_delta_learning(aug_X, w, labels, 1, 13, True)
 
 # W = np.array([[1,1,0], [1,1,1]])
 # x = np.array([1,1,0])
-# print(format_logdata(sequential_hebbian_learning(x, W, 0.25, 5)))
+# sequential_hebbian_learning(x, W, 0.25, 5, True)
 
 # =============================================
-#          multi-layer neural network
+#            classifier models
 # =============================================
 
-W1 = np.array([
-    [-0.7057, 1.9061, 2.6605, -1.1359, 4.8432],
-    [0.4900, 1.9324, -0.4269, -5.1570, 0.3973],
-    [0.9438, -5.4160, -0.3431, -0.2931, 2.1761]
-])
-W2 = np.array([
-    [-1.1444, 0.3115, -9.9812, 2.5230],
-    [0.0106, 11.5477, 2.6479, 2.6463]
-])
-x = np.concatenate([np.array([1, 0, 1, 0]), [1]])
-W1.dot(x)
-x2 = np.concatenate([W1.dot(x), [1]])
-# x2 = augmented_vectors(W1.dot(x))
-W2.dot(x2)
+def linear_discrminant_function(x, w, w0):
+    return w.dot(X.T) + w0
+
+# X = np.array([
+#     [1,1],
+#     [2,2],
+#     [3,3]
+# ])
+# w = np.array([2, 1])
+# linear_discrminant_function(X, w, -5)
+
+def _top_k_nearest_neightbors(centroid, surroundinds, k, func_dist=None, print_log=False):
+    '''return indices of the top k nearest neighbors of centroid from surroundings'''
+    if func_dist==None:
+        func_dist = np.linalg.norm
+    distances = []
+    for vec in surroundinds:
+        distances.append(func_dist(centroid - vec))
+    distances = np.array(distances)
+    top_k = np.argsort(-distances)[:k]
+    if print_log:
+        print('neightbors and distances:', [(v, d) for v, d in zip(surroundinds, distances)])
+    return top_k
+
+def knn(X_train, y_train, x, k, func_dist=None, print_log=False):
+    '''
+    
+    X_train:   2d array - training data
+    y_train:   1d array - labels of training samples
+    x:         1d array - the sample whose label needs to determine
+    k:         int - how many nearest neightbors to count
+    func_dist: function - function to compute distance between samples, by default Eulidean 
+    print_log: bool - whether to print out intermediate results
+    '''
+    if func_dist==None:
+        func_dist = np.linalg.norm
+    top_k_indices = _top_k_nearest_neightbors(x, X_train, k, func_dist, print_log)
+    top_k = X_train[top_k_indices]
+    top_k_labels = y_train[top_k_indices]
+    if print_log:
+        print('top k neightbors:', top_k)
+        print('class of top k neightbors:', top_k_labels)
+    from collections import Counter
+    return Counter(top_k_labels).most_common(1)[0][0]
+
+# surroundinds = np.array(
+#     [0.15, 0.35],
+#     [0.15, 0.28],
+#     [0.12, 0.2],
+#     [0.1, 0.32],
+#     [0.06, 0.25]
+# ])
+# labels = np.array([1,2,2,3,3])
+# print(_top_k_nearest_neightbors([0.15, 0.25], surroundinds, 3))
+# print(knn(surroundinds, labels, [0.15, 0.25], 1, None, True))V
 
 def MLP(x, Ws, func_a, print_log=False):
     '''
@@ -213,6 +285,16 @@ def MLP(x, Ws, func_a, print_log=False):
         x = ai
     return x
 
+# W1 = np.array([
+#     [-0.7057, 1.9061, 2.6605, -1.1359, 4.8432],
+#     [0.4900, 1.9324, -0.4269, -5.1570, 0.3973],
+#     [0.9438, -5.4160, -0.3431, -0.2931, 2.1761]
+# ])
+# W2 = np.array([
+#     [-1.1444, 0.3115, -9.9812, 2.5230],
+#     [0.0106, 11.5477, 2.6479, 2.6463]
+# ])
+# x = np.concatenate([np.array([1, 0, 1, 0]), [1]])
 # def linear_function(Wx):
 #     return Wx
 # def sym_tan_sigmoid(Ws):
@@ -349,7 +431,7 @@ def extreme_learning_machine(X, V, w, func_g=None, print_log=False):
     print_log: bool - whether to print out intermediate results
     ''' 
     if func_g == None:
-	def func_g(X, V):
+        def func_g(X, V):
             return np.where(V.dot(X)<0, 0, 1)
     Y = func_g(X, V)
     if print_log:
@@ -650,7 +732,7 @@ def find_cluster(x,m):
         
     print(cluster)
 
-# eta is ¦Ç
+# eta is learning rate
 def competitive(eta,x,m,order):
     distances=np.zeros(m.shape[0])
     c=len(order)
