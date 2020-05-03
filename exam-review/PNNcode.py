@@ -1,6 +1,6 @@
 '''
 Implementation of some algorithms in PNN,
-a suppliment of KCL KNN lecture notes
+a suppliment of KCL PNN lecture notes
 
 @ Author: Ricky Zhu
 @ email:  rickyzhu@foxmail.com
