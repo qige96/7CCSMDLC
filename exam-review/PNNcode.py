@@ -14,11 +14,10 @@ import pandas as pd
 #             utility functions
 # ================================================
 
-def augmented_vectors(X, labels, normalised=False):
+def augmented_vectors(X, normalised=False):
     '''
     X:      2d numpy array, samples data, where rows are 
             samples and columns are features
-    labels: 1d numpy array of 1 or -1, labels of samples
     '''
     if normalised:
         aug_X = np.hstack([np.ones(len(X)).reshape([-1,1]), X])
@@ -116,11 +115,11 @@ def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
 # ])
 # labels = np.array([1,1,1,-1,-1])
 # a = np.array([-1.5, 5, -1])
-# Y1= augmented_vectors(X, labels)
+# Y1= augmented_vectors(X)
 # print(format_logdata(batch_perceptron_learning(Y1, a, labels, 1 )))
 
 # b = np.array([2,2,2,2,2])
-# Y2 = augmented_vectors(X, labels, normalised=True)
+# Y2 = augmented_vectors(X, normalised=True)
 # print(format_logdata(batch_LMS_learning(Y2, a, b, 0.1, 1000)))
 
 def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10):
@@ -168,12 +167,63 @@ def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10):
 # ])
 # labels = np.array([1,1,1,0,0,0])
 # w = np.array([1, 0, 0])
-# aug_X = augmented_vectors(X, labels)
+# aug_X = augmented_vectors(X)
 # print(format_logdata(sequential_delta_learning(aug_X, w, labels, 1, 13)))
 
 # W = np.array([[1,1,0], [1,1,1]])
 # x = np.array([1,1,0])
 # print(format_logdata(sequential_hebbian_learning(x, W, 0.25, 5)))
+
+# =============================================
+#          multi-layer neural network
+# =============================================
+
+W1 = np.array([
+    [-0.7057, 1.9061, 2.6605, -1.1359, 4.8432],
+    [0.4900, 1.9324, -0.4269, -5.1570, 0.3973],
+    [0.9438, -5.4160, -0.3431, -0.2931, 2.1761]
+])
+W2 = np.array([
+    [-1.1444, 0.3115, -9.9812, 2.5230],
+    [0.0106, 11.5477, 2.6479, 2.6463]
+])
+x = np.concatenate([np.array([1, 0, 1, 0]), [1]])
+W1.dot(x)
+x2 = np.concatenate([W1.dot(x), [1]])
+# x2 = augmented_vectors(W1.dot(x))
+W2.dot(x2)
+
+def MLP(x, Ws, func_a, print_log=False):
+    '''
+    apply multilayer perceptron to x using determined weights
+    assume that in input layer the activation function is linear function
+    
+    x:         1d array - input sample
+    Ws:        list of matrix - array of weights for each layer
+    func_a:    list of function - array of activation function for each layer,
+                excluding input layer
+    print_log: bool - whether to print out intermediate results
+    '''
+    for i in range(len(Ws)):
+        aug_x = np.concatenate([x, [1]])
+        yi = Ws[i].dot(aug_x)
+        ai = func_a[i](yi)
+        if print_log:
+            print('output of layer', i+1, ':', ai)
+        x = ai
+    return x
+
+# def linear_function(Wx):
+#     return Wx
+# def sym_tan_sigmoid(Ws):
+#     return 2/(1+np.exp(-2*Ws)) - 1
+# def log_sigmoid(Ws):
+#     return 1/(1+np.exp(-Ws))
+# func_a = [ sym_tan_sigmoid, log_sigmoid]
+# print(MLP(np.array([1, 0, 1, 0]), [W1, W2], func_a))
+# print(MLP(np.array([0, 1, 0, 1]), [W1, W2], func_a))
+# print(MLP(np.array([1, 1, 0, 0]), [W1, W2], func_a, True))
+
 
 
 # =========================================================
@@ -372,8 +422,6 @@ def compute_svm_weights(X_supp, Y_supp, print_log=False):
 #                      tree and forest
 # =============================================================
 
-
-
 '''count number of wrong classification'''
 def calculate_error(classfier,a_d,min_class_d):
     lens=len(a_d)
@@ -453,8 +501,6 @@ classifier=np.array([[1,1,-1,-1],[1,-1,1,1],[-1,1,-1,-1],[1,-1,-1,-1],[-1,1,1,1]
                      [1,1,1,-1],[-1,-1,-1,1],[-1,-1,1,-1],[1,1,-1,1]])
 adaboost(classifier)
 
-
-    
 
 # ==============================================================
 #                       clustering
