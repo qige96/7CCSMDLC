@@ -462,14 +462,14 @@ adaboost(classifier)
 
     
 def distance(x,y):
-    return numpy.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2)
+    return np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2)
 
 
 def distance_3(x,y):
-    return numpy.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2)
+    return np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2)
 '''
-x=numpy.array([-1.,3.])
-y=numpy.array([0.5,2.5])
+x=np.array([-1.,3.])
+y=np.array([0.5,2.5])
 print(distance(x,y))
 '''
 
@@ -480,15 +480,15 @@ def k_means(c,m,x):
     m: initialise cluster center position
     x: sample datas the last colomns is the label, others is features
     '''
-#    assigned_c=numpy.array([0,0,0,0,0,0])
+#    assigned_c=np.array([0,0,0,0,0,0])
     for i in range(c):
         for j in range(x.shape[0]):
             if distance(x[j],m[0])<distance(x[j],m[1]):
                 x[j][2]=1
             else:
                 x[j][2]=2
-        m[0]=numpy.mean(x[x[:,2]==1,:],axis=0)
-        m[1]=numpy.mean(x[x[:,2]==2,:],axis=0)
+        m[0]=np.mean(x[x[:,2]==1,:],axis=0)
+        m[1]=np.mean(x[x[:,2]==2,:],axis=0)
         print('interation: %d' %(i+1))
         print ('sample (the last colomns is the label):')
         print(x)
@@ -497,15 +497,15 @@ def k_means(c,m,x):
 
 '''
 #initialise
-m=numpy.array([[-1,3,0],[5,1,0]],dtype=float)# no meaning for the last variable
-x=numpy.array([[-1,3,0],[1,4,0],[0,5,0],[4,-1,0],[3,0,0],[5,1,0]],dtype=float)
+m=np.array([[-1,3,0],[5,1,0]],dtype=float)# no meaning for the last variable
+x=np.array([[-1,3,0],[1,4,0],[0,5,0],[4,-1,0],[3,0,0],[5,1,0]],dtype=float)
 c=2
 k_means(c,m,x)
 '''
 
 #tutorial10 q5
 def fuzzy_kmeans(c,x,u):
-    m=numpy.array([[0.,0.],[0.,0.]])
+    m=np.array([[0.,0.],[0.,0.]])
     b=u.shape[1]
     #nromalised u
     u_sum=u.sum(axis=1)
@@ -514,11 +514,11 @@ def fuzzy_kmeans(c,x,u):
     u_norm[:,1]= u[:,1]/u_sum
     for i in range(c):
         #upgrade m
-        u_norm=numpy.power(u_norm,b)
-        m[0][0]=round(numpy.average(x[:,0],weights=u_norm[:,0]),4)
-        m[0][1]=round(numpy.average(x[:,1],weights=u_norm[:,0]),4)
-        m[1][0]=round(numpy.average(x[:,0],weights=u_norm[:,1]),4)
-        m[1][1]=round(numpy.average(x[:,1],weights=u_norm[:,1]),4)
+        u_norm=np.power(u_norm,b)
+        m[0][0]=round(np.average(x[:,0],weights=u_norm[:,0]),4)
+        m[0][1]=round(np.average(x[:,1],weights=u_norm[:,0]),4)
+        m[1][0]=round(np.average(x[:,0],weights=u_norm[:,1]),4)
+        m[1][1]=round(np.average(x[:,1],weights=u_norm[:,1]),4)
         print('interation: %d' %(i+1))
         print(m)
         #upgrade u
@@ -529,8 +529,8 @@ def fuzzy_kmeans(c,x,u):
         print(u_norm)
 
 
-u=numpy.array([[1,0],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0,1]])
-x=numpy.array([[-1,3],[1,4],[0,5],[4,-1],[3,0],[5,1]])
+u=np.array([[1,0],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0,1]])
+x=np.array([[-1,3],[1,4],[0,5],[4,-1],[3,0],[5,1]])
 #fuzzy_kmeans(3,x,u)
 
 
@@ -547,8 +547,8 @@ def pj(n,x,m):
 def distance_between_cluster(x):
     len=x.shape[0]
     dmin=100000.
-    dmin_loc=numpy.array([0,0])
-    distances=numpy.zeros([len,len])
+    dmin_loc=np.array([0,0])
+    distances=np.zeros([len,len])
     for i in range(len-1):
         for j in range (len-i):
             d=distance(x[i],x[j+i])
@@ -557,8 +557,8 @@ def distance_between_cluster(x):
                 dmin=d
                 dmin_loc[0]=i
                 dmin_loc[1]=j  
-    distances=numpy.transpose(distances)
-    #print(numpy.around(distances,decimals=4))
+    distances=np.transpose(distances)
+    #print(np.around(distances,decimals=4))
    #  print (dmin)
     return (dmin_loc,distances)
 
@@ -569,21 +569,21 @@ def agglomerative_hierarchical_cluster(c,x,cluster):
     for i in range (a):
         print('interation: %d' %(i+1))
         print('minimum distance:'),
-        print(numpy.min(distances))
-        dmin_loc=numpy.where(distances==numpy.min(distances))
+        print(np.min(distances))
+        dmin_loc=np.where(distances==np.min(distances))
         print ('minmimum location:')
         print(dmin_loc[0][0],dmin_loc[1][0])
         dmin[0]=dmin_loc[0][0]
         dmin[1]=dmin_loc[1][0]
         cluster[dmin[0]]=cluster[dmin[0]] +'+' +  cluster[dmin[1]]
-        #cluster=numpy.delete(cluster,dmin[1],axis=0)
+        #cluster=np.delete(cluster,dmin[1],axis=0)
         print(cluster)
         distances[dmin[0]][dmin[1]]=float('inf')
         print(distances)
     print('END')
 
 '''  
-x=numpy.array([[-1,3,1],[1,2,2],[0,1,3],[4,0,4],[5,4,5],[3,2,6]],dtype=float)
+x=np.array([[-1,3,1],[1,2,2],[0,1,3],[4,0,4],[5,4,5],[3,2,6]],dtype=float)
 cluster=['1','2','3','4','5','6']
 c=3
 #some bug in the appearence of clusters
@@ -594,28 +594,28 @@ agglomerative_hierarchical_cluster(c,x,cluster)
 def find_cluster(x,m):
     
     lens=m.shape[0]
-    distances=numpy.zeros(lens)
-    cluster=numpy.zeros(x.shape[0],dtype=int)
+    distances=np.zeros(lens)
+    cluster=np.zeros(x.shape[0],dtype=int)
     number=x.shape[0]
     for i in range (number):
         for j in range(lens):
             distances[j]=distance(x[i],m[j])
-        cluster[i]=(numpy.where(distances==numpy.min(distances)))[0]+1
+        cluster[i]=(np.where(distances==np.min(distances)))[0]+1
         
     print(cluster)
 
 # eta is ¦Ç
 def competitive(eta,x,m,order):
-    distances=numpy.zeros(m.shape[0])
+    distances=np.zeros(m.shape[0])
     c=len(order)
     for i in range(c):
         current=order[i]-1
         distances[0]=distance(x[current],m[0])
         distances[1]=distance(x[current],m[1])
         distances[2]=distance(x[current],m[2])
-        dmin=numpy.where(distances==numpy.min(distances))
+        dmin=np.where(distances==np.min(distances))
         #print(dmin[0][0]+1)
-        m[dmin[0][0]]=m[dmin[0][0]]+eta*(numpy.subtract(x[current],m[dmin[0][0]]))
+        m[dmin[0][0]]=m[dmin[0][0]]+eta*(np.subtract(x[current],m[dmin[0][0]]))
         #print(m[dmin[0][0]])
     print(m)
     
@@ -623,24 +623,24 @@ def competitive(eta,x,m,order):
     
 '''
 #initialise
-x=numpy.array([[-1,3],[1,4],[0,5],[4,-1],[3,0],[5,1]],dtype=float)
-m=numpy.zeros([3,2])
+x=np.array([[-1,3],[1,4],[0,5],[4,-1],[3,0],[5,1]],dtype=float)
+m=np.zeros([3,2])
 m[0]=x[0]/2
 m[1]=x[2]/2
 m[2]=x[4]/2
-order=numpy.array([3,1,1,5,6])
+order=np.array([3,1,1,5,6])
 eta=0.1
 m_new=competitive(eta,x,m,order)
 find_cluster(x,m_new)
-x_new=numpy.array([[0,-2]])
+x_new=np.array([[0,-2]])
 find_cluster(x_new,m_new)
 '''
 
 
 def competitive_norm(eta,c,x,m,order):
     print ('just framework, no confirmed')
-    add= numpy.array([1,1,1,1,1,1])
-    x = numpy.insert(x, 0, values=add, axis=1)
+    add= np.array([1,1,1,1,1,1])
+    x = np.insert(x, 0, values=add, axis=1)
     print(x)
     x_normed = x.copy()
     for i in range(len(x_normed)):
@@ -649,20 +649,20 @@ def competitive_norm(eta,c,x,m,order):
         '''no data to prove these codes'''
         #j=argmax mjT*x
         #arg=np.multiply(np.transpose(m),x)
-        #j=numpy.where(arg==numpy.max(arg))
+        #j=np.where(arg==np.max(arg))
         #m[j]=m[j]+eta*x
         #m[j]=m[j]/distance_3(m[j],[0,0,0])
     print(x_normed)
-    # distances=numpy.array([0.,0.,0.])
+    # distances=np.array([0.,0.,0.])
 '''
     for i in range(5):
         current=order[i]-1
         distances[0]=distance(x[current],m[0])
         distances[1]=distance(x[current],m[1])
         distances[2]=distance(x[current],m[2])
-        dmin=numpy.where(distances==numpy.min(distances))
+        dmin=np.where(distances==np.min(distances))
         print(dmin[0][0]+1)
-        m[dmin[0][0]]=m[dmin[0][0]]+eta*(numpy.subtract(x[current],m[dmin[0][0]]))
+        m[dmin[0][0]]=m[dmin[0][0]]+eta*(np.subtract(x[current],m[dmin[0][0]]))
         print(m[dmin[0][0]])
     '''
         
