@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 
 
+# ================================================
+#             utility functions
+# ================================================
 
 def augmented_vectors(X, labels, normalised=False):
     '''
@@ -29,6 +32,10 @@ def format_logdata(log_data):
     df.set_index(log_data[0][0])
     return df
 
+
+# ======================================================
+#                trainning procedures
+# ======================================================
 
 
 def sequential_perceptron_learning(Y, a, labels, eta=1, max_iter=10, print_log=False):
@@ -89,7 +96,6 @@ def batch_perceptron_learning(Y, a, labels, learning_rate=0.1, max_iter=10):
         a = a_new
     return log_data
 
-
 def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
     '''
     Widrow-Hoff (LMS) method
@@ -100,7 +106,6 @@ def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
         log_data.append([i+1, a, a_new])
         a = a_new
     return log_data
-
 
 # X = np.array([
 #     [0,0],
@@ -117,7 +122,6 @@ def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10):
 # b = np.array([2,2,2,2,2])
 # Y2 = augmented_vectors(X, labels, normalised=True)
 # print(format_logdata(batch_LMS_learning(Y2, a, b, 0.1, 1000)))
-
 
 def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10):
     '''
@@ -142,7 +146,6 @@ def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10):
     if print_log:
         print(format_logdata(log_data))
     return w
-
 
 def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10):
     '''sequential Hebbian learning for negative feedback network'''
@@ -173,6 +176,9 @@ def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10):
 # print(format_logdata(sequential_hebbian_learning(x, W, 0.25, 5)))
 
 
+# =========================================================
+#                   feature extraction
+# =========================================================
 
 def PCA_KLT(X, k, print_log=False):
     '''
@@ -207,8 +213,6 @@ def PCA_KLT(X, k, print_log=False):
 # x4 = np.array([2,2,1])
 # X = np.array([x1,x2,x3,x4])
 # PCA_KLT(X, k=2, print_log=True)
-
-
 
 def batch_oja_learning(X, w, eta=0.01, epoch=2, print_log=False):
     '''
@@ -252,7 +256,6 @@ def batch_oja_learning(X, w, eta=0.01, epoch=2, print_log=False):
 # w=np.array([-1, 0])
 # batch_oja_learning(X, w, 0.01, 2, True)
 
-
 def LDA_J(w, X, labels, print_log=False):
     '''
     compute the cost of Fisher's LDA, only for binary classification
@@ -284,9 +287,6 @@ def LDA_J(w, X, labels, print_log=False):
 
 # print(LDA_J(w1, X, labels, True))
 # print(LDA_J(w2, X, labels, True))
-
-
-
 
 def extreme_learning_machine(X, V, w, func_g=None, print_log=False):
     '''
@@ -323,8 +323,6 @@ def extreme_learning_machine(X, V, w, func_g=None, print_log=False):
 # w = np.array([0,0,0,-1,0,0,2])
 # print(extreme_learning_machine(X,V,w,print_log=True))
 
-
-
 def spaCodRecErr(x, V, y):
     '''
     reconstruction error for dictionary-based sparse coding
@@ -336,9 +334,16 @@ def spaCodRecErr(x, V, y):
     return np.linalg.norm(x - V.dot(y))
 
 
+# ========================================================
+#               support vector machine
+# ========================================================
+
 def compute_svm_weights(X_supp, Y_supp, print_log=False):
     '''
-    
+    compute weights of a linear SVM with identified support vectors
+
+    X_supp: 2d array - each row represents a support vector
+    Y_supp: 1d array - label of each support vector, either 1 or -1
     '''
     A = X_supp.dot(X_supp.T)*Y_supp
     A = np.vstack([A, Y_supp])
@@ -361,3 +366,14 @@ def compute_svm_weights(X_supp, Y_supp, print_log=False):
 # )
 # Y_supp = np.array([1,1,-1])
 # print(compute_svm_weights(X_supp, Y_supp, print_log=True))
+
+# ==============================================================
+#                       clustering
+# ==============================================================
+
+
+
+# =============================================================
+#                      tree and forest
+# =============================================================
+
