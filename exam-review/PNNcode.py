@@ -334,3 +334,30 @@ def spaCodRecErr(x, V, y):
     y: the transfered sparse coding of x
     '''
     return np.linalg.norm(x - V.dot(y))
+
+
+def compute_svm_weights(X_supp, Y_supp, print_log=False):
+    '''
+    
+    '''
+    A = X_supp.dot(X_supp.T)*Y_supp
+    A = np.vstack([A, Y_supp])
+    A = np.hstack([A, np.array([1]*len(X_supp)+[0]).reshape([-1,1])])
+    b = np.concatenate([Y_supp, [0]])
+    res = np.linalg.inv(A).dot(b)
+    lambdas, w0 = res[:-1], res[-1]
+    w = np.sum([lambdas[i]*X_supp[i]*Y_supp[i] for i in range(len(X_supp))], axis=0)
+    if print_log:
+        print('euqation atrix:', A)
+        print('equation vector:', b)
+        print('lambdas:',lambdas, ', w0:', w0)
+    return (w, w0)
+
+# X_supp = np.array([
+#      [3,1],
+#      [3,-1],
+#      [1,0]
+#      ]
+# )
+# Y_supp = np.array([1,1,-1])
+# print(compute_svm_weights(X_supp, Y_supp, print_log=True))
