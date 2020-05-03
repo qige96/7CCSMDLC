@@ -209,7 +209,7 @@ def sequential_hebbian_learning(x, W, alpha=0.1, max_iter=10, print_log=False):
 #            classifier models
 # =============================================
 
-def linear_discrminant_function(x, w, w0):
+def linear_discrminant_function(X, w, w0):
     return w.dot(X.T) + w0
 
 # X = np.array([
@@ -218,7 +218,7 @@ def linear_discrminant_function(x, w, w0):
 #     [3,3]
 # ])
 # w = np.array([2, 1])
-# linear_discrminant_function(X, w, -5)
+# print(linear_discrminant_function(X, w, -5))
 
 def _top_k_nearest_neightbors(centroid, surroundinds, k, func_dist=None, print_log=False):
     '''return indices of the top k nearest neighbors of centroid from surroundings'''
