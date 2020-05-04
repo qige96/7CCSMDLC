@@ -190,7 +190,22 @@ def batch_LMS_learning(Y, a, b, learning_rate=0.1, max_iter=10, print_log=False)
 
 # b = np.array([2,2,2,2,2])
 # Y2 = normalise(augmented_notation(X), labels)
-# print(format_logdata(batch_LMS_learning(Y2, a, b, 0.1, 1000)))
+# batch_LMS_learning(Y2, a, b, 0.1, 1000)
+# sequential_LMS_learning(Y2, a, b, 0.2 ,10)
+
+# X = np.array([
+#     [0,2],
+#     [1,2],
+#     [3,1],
+#     [-3,1],
+#     [-2,-1],
+#     [-3, -2]
+# ])
+# labels = np.array([1,1,1,-1,-1,-1])
+# a = np.array([1,0,0])
+# Y1= augmented_notation(X)
+# sequential_perceptron_learning_without_normlisation(
+#     Y1, a, labels, eta=1, max_iter=13, print_log=True)
 
 def sequential_delta_learning(X, w, labels, eta=0.1, max_iter=10, print_log=False):
     '''
@@ -387,6 +402,18 @@ def update_input_hidden_weights(w1, eta, t, z, fp_net1, fp_net2, w2, x):
 
 # print(update_input_hidden_weights(W1[1,1], 0.25, t, z, fp(net1)[1], fp(net2), W2[2], x[0]))
 
+def compute_GAN_cost(real, fake, func_D):
+    Ex = np.sum([np.log(func_D(x))/len(real) for x in real])
+    Ez = np.sum([np.log(1-func_D(x))/len(fake) for x in fake])
+    print(Ex, Ez)
+    return Ex + Ez
+
+# real = np.array([[1,2], [3,4]])
+# fake = np.array([[5,6], [7,8]])
+# def D(x):
+#     return 1 / (1 + np.exp(-(0.1*x[0]-0.2*x[1]-2)))
+
+# compute_GAN_cost(real, fake, D)
 
 # =========================================================
 #                   feature extraction
