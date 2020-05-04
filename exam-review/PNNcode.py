@@ -127,7 +127,7 @@ def sequential_perceptron_learning_with_normlisation(
     for i in range(max_iter):
         k = i % len(Y)
         if a.dot(Y[k]) < 0:  # misclassifed
-            a_new = a + eta * labels[k] * Y[k]
+            a_new = a + eta * Y[k]
         else:
             a_new  = a
         log_data.append([i+1, a, Y[k], a_new, labels[k], a.dot(Y[k])])
@@ -181,7 +181,7 @@ def batch_perceptron_learning_with_normalisation(
         accumulated = 0
         for k in range(len(Y)):
             if a.dot(Y[k]) < 0:  # misclassifed
-                accumulated += learning_rate * labels[k] * Y[k]
+                accumulated += learning_rate * Y[k]
         a_new = a + accumulated
         log_data.append([i+1, a, a_new])
         a = a_new
