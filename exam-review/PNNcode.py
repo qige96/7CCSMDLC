@@ -9,6 +9,11 @@ from __future__ import print_function
 import numpy as np
 import pandas as pd
 
+# set pandas to print more comfortable output
+pd.set_option('display.max_columns', None)  
+pd.set_option('display.expand_frame_repr', False)
+pd.set_option('max_colwidth', -1)
+
 
 # ================================================
 #             utility functions
