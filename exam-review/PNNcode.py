@@ -48,6 +48,24 @@ def normalise(X, labels):
     '''normalise dataset for LMS learning rule'''
     return np.array([labels[i] * X[i] for i in range(len(X))])
 
+def euclidean(a, b):
+    '''Euclidean distance between two vectors'''
+    a = np.array(a)
+    b = np.array(b)
+    return np.linalg.norm(a-b)
+
+def sigmoid(Wx):
+    return 1 / (1+np.exp(-Wx))
+
+def linear_function(Wx):
+    return Wx
+
+def sym_tan_sigmoid(Ws):
+    return 2/(1+np.exp(-2*Ws)) - 1
+
+def log_sigmoid(Ws):
+    return 1/(1+np.exp(-Ws))
+
 def format_logdata(log_data):
     '''formatize log data using pandas.DataFrame'''
     df = pd.DataFrame(data=log_data[1:], columns=log_data[0])
@@ -365,6 +383,39 @@ def MLP(x, Ws, func_a, print_log=False):
 # print(MLP(np.array([1, 1, 0, 0]), [W1, W2], func_a, True))
 
 
+def RBF_net(X, C, W, func_h, func_f, print_log=False):
+    '''
+    Radial Basis Function Neural Network
+
+    X:         2d array - sample data
+    C:         2d array - predefiend centroids of hidden layer
+    W:         2d array - predefiend weights of output layer
+    func_h:    function - activation function of hidden layer
+    func_f:    function - activation function of output layer
+    print_log: bool - whether to print out intermediate results
+    '''
+    d = np.array([np.linalg.norm(X - c, axis=1) for c in C])
+    Y = func_h(d)
+    aug_Y = augmented_notation(Y, 'down')
+    Z = func_f(W.dot(aug_Y))
+    if print_log:
+        print('d:', d)
+        print('Y:', Y)
+    return Z
+
+# X = np.array([
+#     [0,0],
+#     [0,1],
+#     [1,0],
+#     [1,1]
+# ])
+# C = X[[0,3]]
+# W = np.array([[-2.5031, -2.5031,  2.8418]])
+# def f_h(d):
+#     return np.exp(-(d**2)/(2*(1/np.sqrt(2))**2))
+# print(RBF_net(X, C, W, f_h, linear_function).round(2))
+
+
 def _gradient_h_o(t, z, fp_net2, y):
     return (t-z) * fp_net2 * y
 def update_hidden_output_weights(w, eta, t, z, fp_net2, y):
@@ -401,6 +452,28 @@ def update_input_hidden_weights(w1, eta, t, z, fp_net1, fp_net2, w2, x):
 # print('z:', z)
 
 # print(update_input_hidden_weights(W1[1,1], 0.25, t, z, fp(net1)[1], fp(net2), W2[2], x[0]))
+
+
+def compute_output_weights_RBF(aug_Y,t):
+    '''
+    determine weights of output layer for RBF net
+    
+    aug_Y: 2d array - augmented Y (concat ones on the right),
+                    outputs of RBF hidden layer
+    t:     1d array - labels of samples
+    '''
+    adjusted_Y = aug_Y.transpose().dot(aug_Y)
+    return np.linalg.inv(adjusted_Y).dot(aug_Y.transpose()).dot(t).round(4)
+
+# Y = np.array([
+#     [1.0000,    0.1353,    1.0000],
+#     [0.3679,    0.3679,    1.0000],
+#     [0.3679,    0.3679,    1.0000],
+#     [0.1353,    1.0000,    1.0000]
+# ])
+# t = np.array([0,1,1,0])
+# print(compute_output_weights_RBF(Y,t))
+
 
 def compute_GAN_cost(real, fake, func_D):
     Ex = np.sum([np.log(func_D(x))/len(real) for x in real])
@@ -695,6 +768,69 @@ adaboost(classifier)
 #                       clustering
 # ==============================================================
 
+
+def my_kmeans(X, K, print_log=True):
+    '''
+    My k-means algorithm
+    
+    :param X: n by 2 matrix
+    :param K: number of clusters
+    '''
+    ran_index = np.random.choice(np.arange(0,len(X)),K)
+    centres = [X[i] for i in ran_index]
+    prev_labels = np.zeros(len(X))
+    i = 0
+    while True:
+        if print_log:
+            print('iteration',i, ', centers: ')
+            print(centres)
+            print('---------------------------')
+        labels = []
+        for x in X:
+            labels.append(np.argmin([euclidean(x, c) for c in centres]))
+        if np.array_equal(prev_labels, labels):
+            break
+        prev_labels = labels
+        for i in range(len(centres)):
+            centres[i] = np.mean(X[np.array(labels)==i], axis=0)
+        i += 0
+    return labels
+
+def my_kmeans_with_centres(X, centers, max_iter=3, print_log=False):
+    '''
+    My k-means algorithm
+    
+    X:         2d array - sample data
+    centres:   2d array - predefined centroids
+    max_iter:  int - max iteration
+    print_log: bool - whether to print out intermediate results
+    '''
+    prev_labels = np.zeros(len(X))
+    for i in range(max_iter):
+        if print_log:
+            print('iteration',i, ', centers: ')
+            print(centres)
+            print('---------------------------')
+        labels = []
+        for x in X:
+            labels.append(np.argmin([euclidean(x, c) for c in centres]))
+        if np.array_equal(prev_labels, labels):
+            break
+        prev_labels = labels
+        for i in range(len(centres)):
+            centres[i] = np.mean(X[np.array(labels)==i], axis=0)
+    return labels
+
+# S = np.array([
+#     [-1,3],
+#     [1,4],
+#     [0,5],
+#     [4,-1],
+#     [3,0],
+#     [5,1]
+# ])
+# centres = np.array([[-1,3, 1], [5,1, 1]])
+# my_kmeans_with_centres(augmented_notation(S), centres, print_log=True)
     
 def distance(x,y):
     return np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2)
