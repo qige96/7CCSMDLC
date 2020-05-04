@@ -548,8 +548,8 @@ def batch_oja_learning(X, w, eta=0.01, epoch=2, print_log=False):
             y = w.dot(Xp[t])
             intermediates.append(Xp[t])
             intermediates.append(y)
-            intermediates.append(Xp[t].T - y*w)
-            intermediates.append(eta*y*(Xp[t].T - y*w))
+            intermediates.append(np.round(Xp[t].T - y*w, 4))
+            intermediates.append(np.round(eta*y*(Xp[t].T - y*w), 4))
             delta_w += eta*y*(Xp[t].T - y*w)
             logdata.append(intermediates)
         w = w + delta_w
