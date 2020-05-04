@@ -21,6 +21,9 @@ pd.set_option('max_colwidth', -1)
 
 def augmented_vectors(X, normalised=False):
     '''
+    WARNNING: this function has beed deprecated,
+                see `augmented_notation` below
+
     X:      2d numpy array, samples data, where rows are 
             samples and columns are features
     '''
@@ -50,7 +53,7 @@ def augmented_notation(X, direction='left'):
     return np.vstack([X, np.ones(X.shape[1]).reshape([1,-1])])
 
 def normalise(X, labels):
-    '''normalise dataset for LMS learning rule'''
+    '''normalise dataset by multiplying -1 to negative samples'''
     return np.array([labels[i] * X[i] for i in range(len(X))])
 
 def euclidean(a, b):
@@ -316,6 +319,7 @@ def _top_k_nearest_neightbors(centroid, surroundinds, k, func_dist=None, print_l
 
 def knn(X_train, y_train, x, k, func_dist=None, print_log=False):
     '''
+    K nearest neightbors.
     
     X_train:   2d array - training data
     y_train:   1d array - labels of training samples
