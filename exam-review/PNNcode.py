@@ -60,7 +60,7 @@ def format_logdata(log_data):
 # ======================================================
 
 
-def sequential_perceptron_learning_with_normlisation(
+def sequential_perceptron_learning_without_normlisation(
         Y, a, labels, eta=1, max_iter=10, print_log=False):
     '''
     sequential perceptron learning to train discriminant function
@@ -90,7 +90,7 @@ def sequential_perceptron_learning_with_normlisation(
     '''
     sequential perceptron learning to train discriminant function
 
-    Y:        2d array - training data in augmented notation
+    Y:        2d array - training data in augmented and normalised notation
     a:        1d array - initial weights
     labels:   1d array - labels of corresponding sample in Y
     eta:      float - learning rate
