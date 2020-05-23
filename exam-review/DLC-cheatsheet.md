@@ -122,16 +122,38 @@ The hacker initiates the interaction with contract Bank through its  malicious c
 
 **What is the role of consensus protocols in distributed systems?**
 
-**What are  the inherent trade-offs between consistency, availability and partition-tolerance (CAP), and be able to state the CAP Theorem?**
+A fundamental problem in distributed systems is to achieve overall system reliability in the presence of a number of faulty/malicious nodes. This often requires nodes in the system to agree on some data value that is needed during computation. Consensus protocols could be used as rules for nodes to reach agreements.
+
+
+
+**What are the inherent trade-offs between consistency, availability and partition-tolerance (CAP), and be able to state the CAP Theorem?**
+
+Consistency means that all clients see the same data at the same time, no matter which node they connect to. Availability means that that any client making a request for data gets a response, even if one or more nodes are down.  Partition-tolerance means that the cluster must continue to work  despite any number of communication breakdowns between nodes in the  system.
+
+CAP Theorem states that  it is impossible for a distributed data store to simultaneously provide more than two out of the three guarantees among Consistency, Availability, and Partition-tolerance. 
+
+Since no distributed system is safe from network failures, thus network partitioning generally has to be tolerated. Therefore, usually one has to make trade-offs between consistency and availability.
+
+
 
 **What are economic consensus protocols?**
 
+
+
 **What are the concepts of a distributed ledger (or blockchain), permissioned and non-permissioned ledgers, mining, proof-of-work and proof-of-stake, and smart contracts?**
+
+
 
 **What are the applications of cryptography and encryption to distributed ledger technologies?**
 
-**how distributed ledgers can be used to implement cryptocurrencies?**
+
+
+**How distributed ledgers can be used to implement cryptocurrencies?**
+
+
 
 **What are potential and existing applications of distributed ledger technologies, especially in finance?**
+
+
 
 **What are the main advantages and weaknesses of current distributed ledger platforms and technologies?**
