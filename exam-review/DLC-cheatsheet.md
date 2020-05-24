@@ -1,4 +1,7 @@
-> Warning: most of these answers are copied from online texts!
+
+> [!WARNING]
+> most of these answers are copied from online texts!
+
 
 ### Chapter 2
 
@@ -21,11 +24,10 @@ The mathematical problem used in Bitcoin for PoW is to find a value for the *Non
 **What is the total maximum number of Bitcoin to be issued? How many have been issued so far? What will miners be paid after the maximum is reached?**
 
 1. The total maximum number of Bitcoin to be issued is around 21,000,000 bitcoins. In the beginning, a miner would be rewarded with 50 bitcoins when it mines a block. Every 210000 block the reward would be halved. Easily see that the reward would finally become zero. So the total amount of bitcoin could be mined is
-   $$
-   50*1*210000 + 50*\frac{1}{2}*210000 + ...+ 50*\frac{1}{2^n}*210000 
-   =50*2*210000 = 21000000
-   $$
-
+   
+   50 * 1 * 210000 + 50 * (1/2) * 210000 + ...+ 50 * (1/2^n) * 210000 
+   =50 * 2 * 210000 = 21000000
+   
 2. Currently (05/2020), it is estimated that about 18.35 million bitcoins have been issued.
 
 3. After the maximum is reached, miners would only be paid with transaction fee.
@@ -136,6 +138,8 @@ A fundamental problem in distributed systems is to achieve overall system reliab
 
 **What are the inherent trade-offs between consistency, availability and partition-tolerance (CAP), and be able to state the CAP Theorem?**
 
+> see relative [wikipedia page](http://en.wikipedia.org/wiki/CAP_theorem)
+
 Consistency means that all clients see the same data at the same time, no matter which node they connect to. Availability means that that any client making a request for data gets a response, even if one or more nodes are down.  Partition-tolerance means that the cluster must continue to work  despite any number of communication breakdowns between nodes in the  system.
 
 CAP Theorem states that  it is impossible for a distributed data store to simultaneously provide more than two out of the three guarantees among Consistency, Availability, and Partition-tolerance. 
@@ -146,13 +150,13 @@ Since no distributed system is safe from network failures, thus network partitio
 
 **What are economic consensus protocols?**
 
-
+Consensus protocols that are economic? that not cost so much money, time, and energy?
 
 
 
 **What are the concepts of a distributed ledger (or blockchain), permissioned and non-permissioned ledgers, mining, proof-of-work and proof-of-stake, and smart contracts?**
 
-- **Distributed ledger** means a digital system in which records of transactions (typically using bitcoin or similar cryptocurrencies) are simultaneously maintained at multiple computing nodes throughout a network.
+- **Distributed ledger** means a digital system in which records of transactions are simultaneously maintained at multiple computing nodes throughout a network.
 - **Permissioned and non-permissioned ledgers**. Permissioned ledgers are  ledgers whose participants are preselected or subject to gated entry on satisfaction  of certain requirements, while non-permissioned ledgers are ledgers where anyone could participate in. 
 - **Mining** is the process for nodes in blockchain network to validate new transactions and record them on the global ledger.
 - **Proof-of-work** is a consensus protocol for nodes in a blockchain network to compete for the right to pack transactions into a block, by solving hard mathematical problems. 
@@ -163,14 +167,43 @@ Since no distributed system is safe from network failures, thus network partitio
 
 **What are the applications of cryptography and encryption to distributed ledger technologies?**
 
+> see this [post](https://medium.com/catalystnetorg/cryptography-for-distributed-ledger-technologies-in-a-nutshell-dc25e4aa4eb7)
+
+- The linking of each block in the blockchain through the use of a hashing function output (hash) allows the formation of an immutable series of  events, allowing the traceability of the movements of assets from one  block to the next while knowing the chronological order in which they  occurred.
+- Thereby, hashing functions can be used to generate compressed data structures like **Merkle trees** to store information within the block.
+- They are also utilised in the **Proof of Work** algorithm, which is for a majority of blockchains the **network management engine**, i.e. how nodes on the network gain consensus for the state for a given set of processed transactions.
+- Asymmetric encryption also helps. Within a decentralised environment where there is no central authority  to control and ensure transaction validity every transaction broadcast  to the network must contain a valid signature created by one's private key. Through the use of signature schemes, a user can  verifiably prove that he, in fact, own the funds that he is declaring a transaction for.
+- Every transaction submitted by a sender contain a public key of the receiver. Only the person who holds the corresponding private key can prove that he is the actual receiver of that transaction.
+
 
 
 **How distributed ledgers can be used to implement cryptocurrencies?**
+
+To implement cryptocurrencies with distributed ledgers, there are two core things to do. Firstly, make all the transactions immutable. This could be doe by combining all the transactions to produce a hash value, so that we can easily check if any transaction had been altered. Secondly, design a mechanism for transferring ownership of currency. This could be done using asymmetric encryption. Only the person who has the private key can claim ownership and proceed the digital assets he owns.
 
 
 
 **What are potential and existing applications of distributed ledger technologies, especially in finance?**
 
+> see this [post](https://www.hydrogenplatform.com/blog/5-common-blockchain-applications-in-financial-services)
+
+- **Digital payment:** Cryptocurrencies, such as Bitcoin, Ethereum, and etc. could function as traditional currencies like dollars or euros.
+- **Trade finance platforms:** Many banks are using blockchain trade finance platforms to create smart contracts between participants,  increasing efficiency and transparency, and opening up new revenue  opportunities.
+- **Clearing and settlements:** The accurate recording  capabilities of blockchain may one day make current clearing and settlement procedures redundant, resulting in faster transactions and reduced costs for financial institutions.
+- **Credit reporting:** Users could digitally sign their credit information with the public key of banks or other institutes, and submit to blockchain. Then, no one can mutate the information, and only the institutes with private keys could inspect the users' credit information.
+
 
 
 **What are the main advantages and weaknesses of current distributed ledger platforms and technologies?**
+
+**Advantages:**
+
+- Decentralization without central control.
+- Data immutability by chained hash value.
+- Security backed by cryptography.
+
+**Disadvantages:**
+
+- Hard to scale so far.
+- Slow to proceed high volume of transactions.
+- High cost in terms of storage and computation.
