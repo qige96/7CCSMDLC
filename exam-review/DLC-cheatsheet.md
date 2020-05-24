@@ -3,7 +3,7 @@
 > most of these answers are copied from online texts!
 
 
-### Chapter 2
+## Chapter 2
 
 **List the sequence of events involved in acceptance of new blocks by nodes.**
 
@@ -25,8 +25,7 @@ The mathematical problem used in Bitcoin for PoW is to find a value for the *Non
 
 1. The total maximum number of Bitcoin to be issued is around 21,000,000 bitcoins. In the beginning, a miner would be rewarded with 50 bitcoins when it mines a block. Every 210000 block the reward would be halved. Easily see that the reward would finally become zero. So the total amount of bitcoin could be mined is
    
-   50 * 1 * 210000 + 50 * (1/2) * 210000 + ...+ 50 * (1/2^n) * 210000 
-   =50 * 2 * 210000 = 21000000
+   50 * 1 * 210000 + 50 * (1/2) * 210000 + ...+ 50 * (1/2^n) * 210000 =50 * 2 * 210000 = 21000000
    
 2. Currently (05/2020), it is estimated that about 18.35 million bitcoins have been issued.
 
@@ -49,7 +48,7 @@ SHA256 means Secure Hash Algorithm that generate a hash result of 256bits. RIPEM
 
 
 
-### Chapter 3
+## Chapter 3
 
 **Create a table of the advantages and disadvantages of the major consensus protocols**
 
@@ -83,7 +82,7 @@ According to Parity, the vulnerability was triggered by a regular user  who atte
 
 
 
-### Chapter 5
+## Chapter 5
 
 **What was the vulnerability in the DAO exploitation? Explain how recursive code enabled the vulnerability to be exploited**
 
@@ -108,7 +107,7 @@ The hacker initiates the interaction with contract Bank through its  malicious c
 
 
 
-### Chapter 6
+## Chapter 6
 
 **Articulate a system design for the Case Study problem.**
 
@@ -128,7 +127,7 @@ The Libra blockchain, unlike Bitcoin, Ethereum or other blockchain application, 
 
 
 
-### Learning Outcome
+## Learning Outcome
 
 **What is the role of consensus protocols in distributed systems?**
 
