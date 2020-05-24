@@ -114,7 +114,13 @@ The hacker initiates the interaction with contract Bank through its  malicious c
 
 **Consider Facebook’s proposed Libra cryptocurrency. Starting with the Libra Whitepaper, explain the technical architecture of the Libra Blockchain:**
 
+Libra adopts an account-based model similar to Ethereum, which means that users can transfer digital assets from one account to another, by submitting transactions. 
 
+The machine nodes in the Libra network are called Validators, who interact with user clients, handle transactions, and form the Libra blockchain together with other peers. 
+
+The consensus protocol used for Validators in Libra network to reach agreements upon transactions is called LibraBFT, a kind of turn taking protocol, which indicates the nodes in the network would take turns to pack a block of transactions and append them to the Libra blockchain (with agreement of other nodes).
+
+The Libra blockchain, unlike Bitcoin, Ethereum or other blockchain application, is essentially a Merkle accumulator (append-only Merkle tree), instead of a linked list of blocks. 
 
 
 
@@ -140,7 +146,16 @@ Since no distributed system is safe from network failures, thus network partitio
 
 
 
+
+
 **What are the concepts of a distributed ledger (or blockchain), permissioned and non-permissioned ledgers, mining, proof-of-work and proof-of-stake, and smart contracts?**
+
+- **Distributed ledger** means a digital system in which records of transactions (typically using bitcoin or similar cryptocurrencies) are simultaneously maintained at multiple computing nodes throughout a network.
+- **Permissioned and non-permissioned ledgers**. Permissioned ledgers are  ledgers whose participants are preselected or subject to gated entry on satisfaction  of certain requirements, while non-permissioned ledgers are ledgers where anyone could participate in. 
+- **Mining** is the process for nodes in blockchain network to validate new transactions and record them on the global ledger.
+- **Proof-of-work** is a consensus protocol for nodes in a blockchain network to compete for the right to pack transactions into a block, by solving hard mathematical problems. 
+- **Proof-of-stake** is a consensus protocol for nodes in a blockchain network to compete for the right to pack transactions into a block, by depositing a financial stake.
+- **Smart contracts**, traditionally were defined as a set of promises, specified in digital form, including protocols within which the parties perform on the other promises. Nowadays they indicate computer programs that run in the context of  Ethereum Virtual Machine or other blockchain VMs.
 
 
 
