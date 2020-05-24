@@ -1,3 +1,5 @@
+> Warning: most of these answers are copied from online texts!
+
 ### Chapter 2
 
 **List the sequence of events involved in acceptance of new blocks by nodes.**
