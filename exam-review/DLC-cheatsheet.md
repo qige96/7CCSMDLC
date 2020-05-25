@@ -159,7 +159,7 @@ Consensus protocols that are economic? that not cost so much money, time, and en
 - **Permissioned and non-permissioned ledgers**. Permissioned ledgers are  ledgers whose participants are preselected or subject to gated entry on satisfaction  of certain requirements, while non-permissioned ledgers are ledgers where anyone could participate in. 
 - **Mining** is the process for nodes in blockchain network to validate new transactions and record them on the global ledger.
 - **Proof-of-work** is a consensus protocol for nodes in a blockchain network to compete for the right to pack transactions into a block, by solving hard mathematical problems. 
-- **Proof-of-stake** is a consensus protocol for nodes in a blockchain network to compete for the right to pack transactions into a block, by depositing a financial stake.
+- **Proof-of-stake** is a consensus protocol for selecting nodes in a blockchain network to propose blocks, by depositing a financial stake.
 - **Smart contracts**, traditionally were defined as a set of promises, specified in digital form, including protocols within which the parties perform on the other promises. Nowadays they indicate computer programs that run in the context of  Ethereum Virtual Machine or other blockchain VMs.
 
 
@@ -206,3 +206,4 @@ To implement cryptocurrencies with distributed ledgers, there are two core thing
 - Hard to scale so far.
 - Slow to proceed high volume of transactions.
 - High cost in terms of storage and computation.
+
