@@ -10,6 +10,12 @@ import numpy as np
 import pandas as pd
 
 
+def bc_distance():
+  '''
+  compute between cluster distance for clustering tasks
+  '''
+  pass
+
 def gini(branch):
     '''
     compute Gini coeffitient of a branch of a tree split
@@ -45,7 +51,7 @@ def metrics_from_confusion_matrix(mat, class_index):
     Parameters
     -----------
     mat: ndarray/ matrix
-        confusion matrix of an supervised learning result
+        confusion matrix of an classification result
     class_index: int
         index of class name, start from 0
     
