@@ -10,6 +10,23 @@ import numpy as np
 import pandas as pd
 
 
+def gini(branch):
+    '''
+    compute Gini coeffitient of a branch of a tree split
+    
+    Parameters
+    ----------
+    branch: list
+        number of all instances for each class
+        
+    Returns
+    -------
+    gini_coef: float
+        Gini coeffitient
+    
+    '''
+    pass
+
 def metrics_from_confusion_matrix(mat, class_index):
     '''
     compute precision, recall, f_value from confusion matrix.
