@@ -84,3 +84,23 @@ def metrics_from_confusion_matrix(mat, class_index):
         {'precision': 0.73, 'recall': 0.88, 'f_value': 0.4, 'successs_rate': 0.7}
     '''
     pass
+
+def bayesain_probability(likelihood, prior, probability):
+    '''
+    compute the posterior probability using bayes theorem
+    
+    Parameters
+    -----------
+    likelihood: float
+        P(evidence|hypothesis)
+    prior: float
+        P(hypothesis)
+    probability: float
+        P(evidence)
+        
+    Returns
+    --------
+    posterior: float
+        P(hypothesis|evidence)
+    '''
+    pass
