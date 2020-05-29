@@ -33,6 +33,18 @@ def gini(branch):
     '''
     pass
 
+def entropy():
+    '''
+    compute entropy of a branch of a tree split
+    '''
+    pass
+    
+def info_gain():
+    '''
+    compute information gain of a branch of a tree split
+    '''
+    pass
+
 def metrics_from_confusion_matrix(mat, class_index):
     '''
     compute precision, recall, f_value from confusion matrix.
