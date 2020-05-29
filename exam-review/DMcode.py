@@ -1,9 +1,10 @@
 '''
-Implementation of some algorithms in PNN,
-a suppliment of KCL PNN lecture notes
+Implementation of some algorithms in Data Mining,
+a suppliment of KCL 7CCSMDM1 lecture notes
 
-@ author: Ricky Zhu
-@ email:  rickyzhu@foxmail.com
+:author: Ricky Zhu
+:email:  rickyzhu@foxmail.com
+:license: MIT
 '''
 from __future__ import print_function
 import numpy as np
@@ -13,6 +14,12 @@ import pandas as pd
 def bc_distance():
   '''
   compute between cluster distance for clustering tasks
+  '''
+  pass
+
+def wc_distance():
+  '''
+  compute within cluster distance for clustering tasks
   '''
   pass
 
@@ -80,8 +87,14 @@ def metrics_from_confusion_matrix(mat, class_index):
     Examples
     ---------
         >>> matrix = np.matrix([[88,10,2], [14,40,6], [18,10,12]])
-        >>> metrics_from_confusion_matrix(matrix, 0)
+        >>> metrics_from_confusion_matrix(matrix, 0) # for class a
         {'precision': 0.73, 'recall': 0.88, 'f_value': 0.4, 'successs_rate': 0.7}
+    '''
+    pass
+
+def cohen_kappa():
+    '''
+    compute Cohen's Kappa Coefficient for two classifiers
     '''
     pass
 
