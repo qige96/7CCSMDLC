@@ -11,6 +11,10 @@ import numpy as np
 import pandas as pd
 
 
+# ======================================================
+#                 Clustering Metrics
+# ======================================================
+
 def cluster_diameter(C, print_log=False):
     '''
     compute The largest distance between any two points in a cluster
@@ -244,6 +248,11 @@ def silhouette_coeffcient(X, y):
     from sklearn.metrics import silhouette_score
     return silhouette_score(X, y)
 
+
+# ======================================================
+#                 Tree Split Metrics
+# ======================================================
+
 def gini(branch:list):
     '''
     compute Gini coeffitient of a branch of a tree split
@@ -329,6 +338,11 @@ def info_gain(parent:list, children:list):
         0.108
     '''
     return entropy(parent) - sum([(sum(i)/sum(parent))*entropy(i) for i in children])
+
+
+# ======================================================
+#               Classification Metrics
+# ======================================================
 
 def metrics_from_confusion_matrix(mat, cls_i:int):
     '''
@@ -438,6 +452,11 @@ def bayesain_probability(likelihood, prior, probability):
         P(hypothesis|observation)
     '''
     return likelihood * prior / probability
+
+
+# ======================================================
+#                    Time Series
+# ======================================================
 
 def moving_average(series, window_size):
     '''
