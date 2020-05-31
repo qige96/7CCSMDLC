@@ -8,7 +8,7 @@ a suppliment of KCL 7CCSMDM1 lecture notes
 '''
 from __future__ import print_function
 import numpy as np
-import pandas as pd
+import textblob
 
 
 def square_of_distance(C, b):
@@ -131,8 +131,10 @@ def entropy(branch:list):
         0
     '''
     etp = 0
-    for dataum in branch:
-        prob = dataum / sum(branch)
+    for datum in branch:
+        if datum == 0:
+            continue
+        prob = datum / sum(branch)
         etp += prob * np.log2(prob)
     return (-1)*etp
     
@@ -159,7 +161,7 @@ def info_gain(parent:list, children:list):
         >>> info_gain(parent, children1)
         0
         >>> info_gain(parent, children2)
-        0.1
+        0.108
     '''
     return entropy(parent) - sum([(sum(i)/sum(parent))*entropy(i) for i in children])
 
@@ -338,7 +340,7 @@ def _tf(tokenized_doc):
         >>> _tf(t_doc)
         {'a': 2, 'b': 1}
     """
-    return dict(textblob(' '.join(tokenized_doc)).word_counts)
+    return dict(textblob.TextBlob(' '.join(tokenized_doc)).word_counts)
 
 def _idf(tokenized_docs, fomula=None):
     """
@@ -361,7 +363,7 @@ def _idf(tokenized_docs, fomula=None):
     --------
         >>> tokens = [['a', 'b'], ['a', 'c']]
         >>> _idf(tokens)
-        {'a': , 'b':, 'c': }
+        {'a': -1.6, 'b': 0, 'c': 0}
     """
     terms = []
     for doc in tokenized_docs:
@@ -371,9 +373,9 @@ def _idf(tokenized_docs, fomula=None):
 
     def DF(term):
         df = 0
-    	for doc in books.values():
-        if term in tokenized_docs:
-            df += 1
+        for doc in tokenized_docs:
+            if term in doc:
+                df += 1
         return df 
     
     if fomula == None:
@@ -407,7 +409,7 @@ def tfidf(tokenized_docs):
     --------
         >>> tokens = [['a', 'b'], ['a', 'c']]
         >>> ifidf(tokens)
-        {0:{'a': , 'b':}, 1:{'a':, 'c':  }}
+        {0:{'a': -0.805, 'b': 0}, 1:{'a': -0.805, 'c': 0}}
     """
     term_idf = _idf(tokenized_docs)
         
