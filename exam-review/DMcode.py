@@ -11,15 +11,65 @@ import numpy as np
 import pandas as pd
 
 
-def bc_distance():
+def square_of_distance(C, b):
+    C = np.array(C)
+    b = np.array(b)
+    return np.linalg.norm(C-b)**2 
+
+def owc(X, y):
     '''
-    compute between cluster distance for clustering tasks
+    compute overall within cluster distance
+    
+    :param X: n by m matrix - feature data
+    :param y: n vecter - label data
+    :return: floating number - within cluster distance
+    '''
+    y = np.array(y)
+    wc = 0.0
+    for i in range(len(set(y))):
+        c = np.mean(X[y==i], axis=0)
+        for x in X[y==i]:
+            wc += square_of_distance(x, c)
+    return wc
+
+def obc(X, y):
+    '''
+    compute overall between cluster distance
+    
+    :param X: n by m matrix - feature data
+    :param y: n vecter - label data
+    :return: floating number - between cluster distance
+    '''
+    y = np.array(y)
+    bc = 0.0
+    centres = []
+    for i in range(len(set(y))):
+        centres.append(np.mean(X[y==i], axis=0))
+    for i in range(len(centres)):
+        for j in range(i+1, len(centres)):
+            bc += square_of_distance(centres[i], centres[j])
+    return bc
+
+def overall_clustering_score(X, y):
+    '''
+    compute overall clustering score
+    OC = BC / WC
+    
+    :param X: n by m matrix - feature data
+    :param y: n vecter - label data
+    :return: floating number - overall clustering score
+    '''
+    return obc(X,y) / owc(X,y)
+
+def calinski_harabaz():
+    '''
+    compute Calinski-Harabaz Index for evaluating clustering tasks
     '''
     pass
 
-def wc_distance():
+def silhouette_coecient():
     '''
-    compute within cluster distance for clustering tasks
+    compute Silhouette Coecient for evaluating clustering tasks
     '''
     pass
 
@@ -29,39 +79,94 @@ def category_utility_metric():
     '''
     pass
 
-def gini(branch):
+def gini(branch:list):
     '''
     compute Gini coeffitient of a branch of a tree split
     
     Parameters
     ----------
     branch: list
-        number of all instances for each class
+        number of all instances for each class in a branch
         
     Returns
     -------
     gini_coef: float
         Gini coeffitient
     
+    Examples
+    --------
+        >>> l_branch1 = [5, 5]; gini(l_branch1) # from lec 3 slide 34
+        0.5
+        >>> l_branch2 = [10, 8]; gini(l_branch2)
+        0.5072
+        >>> l_branch3 = [10, 0]; gini(l_branch3)
+        1.0
     '''
-    pass
+    gini_coef = 0
+    for datum in branch:
+        gini_coef += (datum / sum(branch))**2
+    return gini_coef
 
-def entropy():
+def entropy(branch:list):
     '''
     compute entropy of a branch of a tree split
-    '''
-    pass
     
-def info_gain():
-    '''
-    compute information gain of a branch of a tree split
-    '''
-    pass
+    Parameters
+    ----------
+    branch: list
+        number of all instances for each class in a branch
+        
+    Returns
+    -------
+    etp: float
+        Entropy
 
-def metrics_from_confusion_matrix(mat, class_index):
+    Examples
+    --------
+        >>> l_branch1 = [5, 5]; entropy(l_branch1) # from lec 3 slide 39
+        1.0
+        >>> l_branch2 = [10, 8]; entropy(l_branch2)
+        0.9896
+        >>> l_branch3 = [10, 0]; entropy(l_branch3)
+        0
+    '''
+    etp = 0
+    for dataum in branch:
+        prob = dataum / sum(branch)
+        etp += prob * np.log2(prob)
+    return (-1)*etp
+    
+def info_gain(parent:list, children:list):
+    '''
+    compute information gain of a tree split
+
+    Parameters
+    ----------
+    parent: list
+        number of all instances for each class in a node (parent node)
+    children: list (of lists)
+        number of instances for each class in each child node
+
+    Returns
+    -------
+    ig: float
+        information gain of a split
+
+    Examples
+    --------
+        >>> parent = [10, 10]
+        >>> children1 = [[5, 5], [5, 5]]; children2 = [[10, 8], [0, 2]]
+        >>> info_gain(parent, children1)
+        0
+        >>> info_gain(parent, children2)
+        0.1
+    '''
+    return entropy(parent) - sum([(sum(i)/sum(parent))*entropy(i) for i in children])
+
+def metrics_from_confusion_matrix(mat, cls_i:int):
     '''
     compute precision, recall, f1_value from confusion matrix.
-                         predicted
+                       predicted
               -----------------------
               |    |  a  |  b  |  c |
               -----------------------
@@ -77,7 +182,7 @@ def metrics_from_confusion_matrix(mat, class_index):
     -----------
     mat: ndarray/matrix
         confusion matrix of an classification result
-    class_index: int
+    cls_i: int
         index of class name, start from 0
     
     Returns
@@ -94,9 +199,18 @@ def metrics_from_confusion_matrix(mat, class_index):
     ---------
         >>> matrix = np.matrix([[88,10,2], [14,40,6], [18,10,12]])
         >>> metrics_from_confusion_matrix(matrix, 0) # for class a
-        {'precision': 0.73, 'recall': 0.88, 'f1': 0.8, 'successs_rate': 0.7}
+        {'precision': 0.73, 'recall': 0.88, 'f1': 0.8, 'success_rate': 0.7}
     '''
-    pass
+    p = mat[cls_i, cls_i] / np.sum(mat[:, cls_i])
+    r = mat[cls_i, cls_i] / np.sum(mat[cls_i, :])
+    f = (2 * p * r) / (p + r)
+    s = mat.diagonal().sum() / mat.sum()
+    return {
+            'precision':p,
+            'recall': r,
+            'f1': f,
+            'success_rate': s
+            }
 
 def cohen_kappa():
     '''
