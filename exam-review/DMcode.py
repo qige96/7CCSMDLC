@@ -11,6 +11,163 @@ import numpy as np
 import pandas as pd
 
 
+def cluster_diameter(C, print_log=False):
+    '''
+    compute The largest distance between any two points in a cluster
+
+    Parameters
+    ----------
+    C: ndarray
+        A cluster of points (vectors)
+    print_log: bool
+        whether to print intermediate results
+
+    Returns
+    -------
+    dist: float
+        cluster diameter
+
+    Examples
+    --------
+        >>> cluster = np.array([[0,0], [1,1], [1,2]])
+        >>> cluster_diameter(cluster)
+        2.23606797749979
+    '''
+    from scipy.spatial.distance import cdist
+    dists = cdist(C, C)
+    idx = np.unravel_index(dists.argmax(), dists.shape)
+    if print_log:
+        print('distances:\n', dists)
+        print('indices of two points in this cluster:\n', idx[0], idx[1])
+        print('The two points:\n', C[idx[0]], C[idx[1]])
+    return dists.max()
+
+def single_link(C1, C2, print_log=False):
+    '''
+    The minimum distance between any two points in the two different clusters
+    
+    Parameters
+    ----------
+    C1, C2: ndarray
+        Two clusters of points (vectors)
+    print_log: bool
+        whether to print intermediate results
+
+    Returns
+    -------
+    dist: float
+        single linkage
+
+    Examples
+    --------
+        >>> cluster1 = np.array([[0,0], [1,1], [1,2]])
+        >>> cluster2 = np.array([[2,2], [2,3], [3,4]])
+        >>> single_link(cluster1, cluster2)
+        1.0
+    '''
+    from scipy.spatial.distance import cdist
+    dists = cdist(C1, C2)
+    idx = np.unravel_index(dists.argmin(), dists.shape)
+
+    if print_log:
+        print('distances:\n',dists)
+        print('indices of two samples in C1 and C2:\n', idx[0], idx[1])
+        print('The two points:\n', C1[idx[0]], C2[idx[1]])
+    return dists.min()
+
+def complete_link(C1, C2, print_log=False):
+    '''
+    The maximum distance between any two points in the two different clusters
+    
+    Parameters
+    ----------
+    C1, C2: ndarray
+        Two clusters of points (vectors)
+    print_log: bool
+        whether to print intermediate results
+
+    Returns
+    -------
+    dist: float
+        complete linkage
+
+    Examples
+    --------
+        >>> cluster1 = np.array([[0,0], [1,1], [1,2]])
+        >>> cluster2 = np.array([[2,2], [2,3], [3,4]])
+        >>> complete_link(cluster1, cluster2)
+        5.0
+    '''
+    from scipy.spatial.distance import cdist
+    dists = cdist(C1, C2)
+    idx = np.unravel_index(dists.argmax(), dists.shape)
+
+    if print_log:
+        print('distances:\n', dists)
+        print('indices of two samples in C1 and C2:\n', idx[0], idx[1])
+        print('The two points:\n', C1[idx[0]], C2[idx[1]])
+    return dists.max()
+
+def average_link(C1, C2,print_log=False):
+    '''
+    The average distance of every paire of points in the two different clusters
+    
+    Parameters
+    ----------
+    C1, C2: ndarray
+        Two clusters of points (vectors)
+    print_log: bool
+        whether to print intermediate results
+
+    Returns
+    -------
+    dist: float
+        average linkage
+
+    Examples
+    --------
+        >>> cluster1 = np.array([[0,0], [1,1], [1,2]])
+        >>> cluster2 = np.array([[2,2], [2,3], [3,4]])
+        >>> average_link(cluster1, cluster2)
+        2.6591613225184823
+    '''
+    from scipy.spatial.distance import cdist
+    dists = cdist(C1, C2)
+
+    if print_log:
+        print('distances:\n', dists)
+
+    return dists.mean()
+
+def centroid_link(C1, C2, print_log=False):
+    '''
+    The distance between centroids in the two different clusters
+    
+    Parameters
+    ----------
+    C1, C2: ndarray
+        Two clusters of points (vectors)
+    print_log: bool
+        whether to print intermediate results
+
+    Returns
+    -------
+    dist: float
+        average linkage
+
+    Examples
+    --------
+        >>> cluster1 = np.array([[0,0], [1,1], [1,2]])
+        >>> cluster2 = np.array([[2,2], [2,3], [3,4]])
+        >>> centroid_link(cluster1, cluster2)
+        2.6034165586355518
+    '''
+    c1 = C1.mean(axis=0)
+    c2 = C2.mean(axis=0)
+    if print_log:
+        print('centroids of two clusters:\n', c1, '\n', c2)
+    return np.linalg.norm(c1-c2)
+
 def square_of_distance(C, b):
     C = np.array(C)
     b = np.array(b)
@@ -72,8 +229,8 @@ def calinski_harabaz(X, y):
     '''
     # n, K = len(X), len(set(y))
     # return (obc(X, y)/owc(X, y)) * ((n-K) / (k-1))
-    from sklearn.metrics import calinski_harabasz
-    return calinski_harabasz(X, y)
+    from sklearn.metrics import calinski_harabasz_score
+    return calinski_harabasz_score(X, y)
 
 def silhouette_coeffcient(X, y):
     '''
