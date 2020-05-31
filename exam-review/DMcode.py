@@ -299,8 +299,10 @@ def entropy(branch:list):
     --------
         >>> l_branch1 = [5, 5]; entropy(l_branch1) # from lec 3 slide 39
         1.0
-        >>> l_branch2 = [10, 8]; entropy(l_branch2)
-        0.9896
+        
+        result different from slides because of not rounded intermediate (prob)
+        >>> l_branch2 = [10, 8]; entropy(l_branch2) 
+        0.9910760598382222
         >>> l_branch3 = [10, 0]; entropy(l_branch3)
         0
     '''
@@ -333,9 +335,9 @@ def info_gain(parent:list, children:list):
         >>> parent = [10, 10]
         >>> children1 = [[5, 5], [5, 5]]; children2 = [[10, 8], [0, 2]]
         >>> info_gain(parent, children1)
-        0
+        0.0
         >>> info_gain(parent, children2)
-        0.108
+        0.10803154614559995
     '''
     return entropy(parent) - sum([(sum(i)/sum(parent))*entropy(i) for i in children])
 
@@ -373,17 +375,16 @@ def confmat_metrics(mat):
 
     Examples
     --------
-        >>> matrix = np.array([[1, 3], [4, 2]])
+        >>> matrix = np.array([[1, 3], [4, 2]]) # exam 2017 Q 22
         >>> confmat_metrics(matrix)
-        {'success_rate': 0.3,
-         'error_rate': 0.7,
-         'TP_rate': 0.25,
-         'FP_rate': 0.6666666666666666}
+        {'success_rate': 0.3, 'error_rate': 0.7, 'TP_rate': 0.25, 'FP_rate': 0.6666666666666666}
     '''
     s = (mat[0,0]+mat[1,1]) / mat.sum()
     e = (mat[1,0]+mat[0,1]) / mat.sum()
     tp = mat[0,0] / (mat[0,0] + mat[0,1])
     fp = mat[1,0] / (mat[1,0] + mat[1,1])
+    tn = mat[1,1] / (mat[1,0] + mat[1,1])
+    fn = mat[0,1] / (mat[0,0] + mat[0,1])
     return {
             'success_rate': s,
             'error_rate': e,
@@ -427,7 +428,7 @@ def metrics_from_general_confusion_matrix(mat, cls_i:int):
     ---------
         >>> matrix = np.matrix([[88,10,2], [14,40,6], [18,10,12]])
         >>> metrics_from_general_confusion_matrix(matrix, 0) # for class a
-        {'precision': 0.73, 'recall': 0.88, 'f1': 0.8, 'success_rate': 0.7}
+        {'precision': 0.7333333333333333, 'recall': 0.88, 'f1': 0.8, 'success_rate': 0.7}
     '''
     p = mat[cls_i, cls_i] / np.sum(mat[:, cls_i])
     r = mat[cls_i, cls_i] / np.sum(mat[cls_i, :])
@@ -448,8 +449,8 @@ def cohen_kappa(mat):
             -----------------------
             |    |    A   |   B   |
             -----------------------
-            | A  | aa(20) | bb(5) |
-          C | B  | ba(10) | ab(15)|
+            | A  | aa(20) | ab(5) |
+          C | B  | ba(10) | bb(15)|
             -----------------------
         n = aa+bb+ab+ba = 50
         Pr(a) = (aa+bb) / n = 0.7
@@ -474,9 +475,9 @@ def cohen_kappa(mat):
         0.4
     '''
     n = mat.sum()
-    Pr_a = mat[0].sum()
-    Pr_e = (mat[0,0]+mat[1,0])/n * (mat[0,0]+mat[1,1])/n \
-            + (mat[0,1]+mat[1,1])/n * (mat[0,1]+mat[1,0])/n
+    Pr_a = (mat[0, 0] + mat[1, 1]) / n
+    Pr_e = (mat[0,0]+mat[1,0])/n * (mat[0,0]+mat[0,1])/n \
+            + (mat[1,1]+mat[0,1])/n * (mat[1,1]+mat[1,0])/n
     ck_coef = (Pr_a - Pr_e) / (1 - Pr_e)
     return ck_coef
 
@@ -547,11 +548,12 @@ def get_token_stream(tokenized_docs):
     --------
         >>> tokens = [['a', 'b'], ['a', 'c']]
         >>> get_token_stream(tokens)
-        [('a', 0), ('b', 0), ('a', 1), ('b', 1)]
+        [('a', 0), ('b', 0), ('a', 1), ('c', 1)]
     """
     token_stream = []
-    for doc_id, term in enumerate(tokenized_docs):
-        token_stream.append((term, doc_id))
+    for doc_id, doc in enumerate(tokenized_docs):
+        for term in doc:
+            token_stream.append((term, doc_id))
     return token_stream
 
 def build_indices(tokenized_docs):
@@ -572,7 +574,7 @@ def build_indices(tokenized_docs):
     --------
         >>> tokens = [['a', 'b'], ['a', 'c']]
         >>> build_indices(tokens)
-        {'a': [0, 1], 'b':[0], 'c':[1]}
+        {'a': [0, 1], 'b': [0], 'c': [1]}
     """
     token_stream = get_token_stream(tokenized_docs)
     indices = {}
@@ -602,7 +604,7 @@ def _tf(tokenized_doc):
 
     Examples
     --------
-        >>> doc = ['a', 'a', 'b']
+        >>> t_doc = ['a', 'a', 'b']
         >>> _tf(t_doc)
         {'a': 2, 'b': 1}
     """
@@ -675,7 +677,7 @@ def tfidf(tokenized_docs):
     Examples
     --------
         >>> tokens = [['a', 'b'], ['a', 'c']]
-        >>> ifidf(tokens)
+        >>> tfidf(tokens)
         {0:{'a': -0.805, 'b': 0}, 1:{'a': -0.805, 'c': 0}}
     """
     term_idf = _idf(tokenized_docs)
@@ -690,9 +692,137 @@ def tfidf(tokenized_docs):
             term_tfidf[doc_id][term] = tfidf
     return term_tfidf
 
-
-
 def cos_similarity(vector1, vector2):
     """compute cosine similarity of two vectors"""
     return np.dot(vector1,vector2)/(np.linalg.norm(vector1)*(np.linalg.norm(vector2))) 
 
+
+# ======================================================
+#                 Association Rules
+# ======================================================
+
+def one_item_set(txs):
+    '''
+    construct one-item set from a batch of transactions
+    
+    Parameters
+    ----------
+    txs: list
+        list of transactions that is a list of items
+
+    Returns
+    -------
+    one_set: list
+        list of one-item set
+
+    Examples
+    --------
+        from Lecure 6 Slide 12
+        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
+        >>> one_item_set(txs)
+        ['o', 's', 'm', 'w', 'd']
+    '''
+    one_set = []
+    for tx in txs:
+        for item in tx:
+            if item not in one_set:
+                one_set.append(item)
+    return one_set
+
+def two_item_set(one_set, txs):
+    '''
+    construct two-item set from one-item set
+    
+    Parameters
+    ----------
+    one_set: list
+        one-item set
+    txs: list
+        list of transactions that is a list of items
+
+    Returns
+    -------
+    two_set: list
+        list of two-item set
+
+    Examples
+    --------
+        from Lecure 6 Slide 13
+        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
+        >>> one_set = ['o', 's', 'm', 'w', 'd']
+        >>> two_item_set(one_set, txs)
+        [('o', 's'), ('o', 's'), ('o', 'm'), ('o', 'w'), ('o', 'd'), ('o', 'd'), ('s', 'w'), ('s', 'd'), ('m', 'w')]
+    '''
+    two_set = []
+    from itertools import combinations_with_replacement
+    for tup in combinations_with_replacement(one_set, 2):
+        if len(set(tup)) == 2:
+            for tx in txs:
+                if (tup[0] in tx) and (tup[1] in tx):
+                    two_set.append(tup)
+    return two_set
+
+def three_item_set(two_set, txs):
+    '''
+    construct three-item set from one-item set
+    
+    Parameters
+    ----------
+    two_set: list
+        two-item set
+    txs: list
+        list of transactions that is a list of items
+
+    Returns
+    -------
+    three_set: list
+        list of three-item set
+
+    Examples
+    --------
+        from Lecure 6 Slide 13
+        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
+        >>> two_set = [('o','s'), ('o','d')]
+        >>> three_item_set(two_set, txs)
+        [('o', 's', 'd')]
+    '''
+    three_set = []
+    items = []
+    for i in two_set:
+        for k in i:
+            if k not in items:
+                items.append(k)
+
+    from itertools import combinations_with_replacement
+    for tup in combinations_with_replacement(items, 3):
+        if len(set(tup)) == 3:
+            for tx in txs:
+                if (tup[0] in tx) and (tup[1] in tx) and (tup[2] in tx):
+                    three_set.append(tup)
+    return three_set
+
+def coverage():
+    '''
+    count the number of instances covered by the rule
+
+        [('o', 's'), ('o', 'w'), ('o', 'd'), ('s', 'w'), ('s', 'd'), ('w', 'd')]
+    '''
+    pass
+
+def support():
+    '''
+    calculate the proportion of instances covered by the rule
+    '''
+    pass
+
+def confidence():
+    '''
+    calculate the proportion of instances that the rule predicts 
+    correctly over all instances. Also called accuracy.
+    '''
+    pass
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
