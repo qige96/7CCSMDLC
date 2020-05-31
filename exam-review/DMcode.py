@@ -344,7 +344,54 @@ def info_gain(parent:list, children:list):
 #               Classification Metrics
 # ======================================================
 
-def metrics_from_confusion_matrix(mat, cls_i:int):
+def confmat_metrics(mat):
+    '''
+    compute success rate, error rate, true positive rate, false positive rate,
+    given a binary classification confusion matrix.
+                        predicted
+                -------------------
+                |     |  Y  |  N  |
+                -------------------
+                |  Y  | TP  | FN  |
+          actual|  N  | FP  | TN  |
+                -------------------
+
+    Parameters
+    ----------
+    mat: ndarray/matrix
+        confusion matrix of an BINARY classification result
+
+    Returns
+    -------
+    metrics: dict
+        {
+            'success_rate': float,
+            'error_rate': float,
+            'TP_rate': float,
+            'FP_rate': float,
+        }
+
+    Examples
+    --------
+        >>> matrix = np.array([[1, 3], [4, 2]])
+        >>> confmat_metrics(matrix)
+        {'success_rate': 0.3,
+         'error_rate': 0.7,
+         'TP_rate': 0.25,
+         'FP_rate': 0.6666666666666666}
+    '''
+    s = (mat[0,0]+mat[1,1]) / mat.sum()
+    e = (mat[1,0]+mat[0,1]) / mat.sum()
+    tp = mat[0,0] / (mat[0,0] + mat[0,1])
+    fp = mat[1,0] / (mat[1,0] + mat[1,1])
+    return {
+            'success_rate': s,
+            'error_rate': e,
+            'TP_rate': tp,
+            'FP_rate': fp
+            }
+
+def metrics_from_general_confusion_matrix(mat, cls_i:int):
     '''
     compute precision, recall, f1_value from confusion matrix.
                        predicted
@@ -379,7 +426,7 @@ def metrics_from_confusion_matrix(mat, cls_i:int):
     Examples
     ---------
         >>> matrix = np.matrix([[88,10,2], [14,40,6], [18,10,12]])
-        >>> metrics_from_confusion_matrix(matrix, 0) # for class a
+        >>> metrics_from_general_confusion_matrix(matrix, 0) # for class a
         {'precision': 0.73, 'recall': 0.88, 'f1': 0.8, 'success_rate': 0.7}
     '''
     p = mat[cls_i, cls_i] / np.sum(mat[:, cls_i])
