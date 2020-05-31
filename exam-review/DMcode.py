@@ -8,7 +8,7 @@ a suppliment of KCL 7CCSMDM1 lecture notes
 '''
 from __future__ import print_function
 import numpy as np
-import textblob
+import pandas as pd
 
 
 def square_of_distance(C, b):
@@ -61,23 +61,31 @@ def overall_clustering_score(X, y):
     '''
     return obc(X,y) / owc(X,y)
 
-def calinski_harabaz():
+def calinski_harabaz(X, y):
     '''
     compute Calinski-Harabaz Index for evaluating clustering tasks
-    '''
-    pass
+    simply call the corresponding function in `sklearn` package
 
-def silhouette_coecient():
+    :param X: n by m matrix - feature data
+    :param y: n vecter - label data
+    :return: floating number - Calinski-Harabaz Index
     '''
-    compute Silhouette Coecient for evaluating clustering tasks
-    '''
-    pass
+    # n, K = len(X), len(set(y))
+    # return (obc(X, y)/owc(X, y)) * ((n-K) / (k-1))
+    from sklearn.metrics import calinski_harabasz
+    return calinski_harabasz(X, y)
 
-def category_utility_metric():
+def silhouette_coeffcient(X, y):
     '''
-    compute category utility metric for intremental clustering tree 
+    compute the average Silhouette Coeffcient of all samples,
+    simply call the function in `sklearn` package
+    
+    :param X: n by m matrix - feature data
+    :param y: n vecter - label data
+    :return: floating number - mean silhouette coef of all samples
     '''
-    pass
+    from sklearn.metrics import silhouette_score
+    return silhouette_score(X, y)
 
 def gini(branch:list):
     '''
@@ -214,11 +222,45 @@ def metrics_from_confusion_matrix(mat, cls_i:int):
             'success_rate': s
             }
 
-def cohen_kappa():
+def cohen_kappa(mat):
     '''
     compute Cohen's Kappa Coefficient for two classifiers
+    suppose that the results of two classifiers C and C' are as below
+                       C'
+            -----------------------
+            |    |    A   |   B   |
+            -----------------------
+            | A  | aa(20) | bb(5) |
+          C | B  | ba(10) | ab(15)|
+            -----------------------
+        n = aa+bb+ab+ba = 50
+        Pr(a) = (aa+bb) / n = 0.7
+        Pr(e) = (aa+ba)/n * (aa+ab)/n + (bb+ab)/n * (bb+ba)/n = 0.5
+        ck_coef = (Pr(a) - Pr(e)) / (1 - Pr(e)) = 0.4
+        [see https://en.wikipedia.org/wiki/Cohen%27s_kappa#Simple_example]
+
+    Parameters
+    ----------
+    mat: matrix/ndarray
+        result matrix of two classifiers
+
+    Returns
+    -------
+    ck_coef: float
+        Cohen Kappa Coefficient of these two classifiers
+
+    Examples
+    --------
+        >>> matrix = np.matrix([[20, 5], [10, 15]])
+        >>> cohen_kappa(matrix)
+        0.4
     '''
-    pass
+    n = mat.sum()
+    Pr_a = mat[0].sum()
+    Pr_e = (mat[0,0]+mat[1,0])/n * (mat[0,0]+mat[1,1])/n \
+            + (mat[0,1]+mat[1,1])/n * (mat[0,1]+mat[1,0])/n
+    ck_coef = (Pr_a - Pr_e) / (1 - Pr_e)
+    return ck_coef
 
 def bayesain_probability(likelihood, prior, probability):
     '''
@@ -240,23 +282,23 @@ def bayesain_probability(likelihood, prior, probability):
     '''
     return likelihood * prior / probability
 
-def moving_average():
+def moving_average(series, window_size):
     '''
-    compute moving average of a time series
+    apply moving average to a time series
     '''
-    pass
+    s = pd.Series(series)
+    return s.rolling(window=window_size).mean().to_list()
 
-def exponential_smoothing():
+def exponential_smoothing(series, alpha):
     '''
     apply exponential smoothing to a time series
     '''
-    pass
-
-def perplexity():
-    '''
-    compute perplexity of a character string
-    '''
-    pass
+    # estimated = [series[0]] 
+    # for t in range(1, len(series)):
+    #     estimated.append(alpha*series[t] + (1-alpha)*series[t-1])
+    # return estimated
+    s = pd.Series(series)
+    return s.ewm(alpha=alpha).mean().to_list()
 
 
 # ======================================================
@@ -323,7 +365,8 @@ def build_indices(tokenized_docs):
 def _tf(tokenized_doc):
     """
     calculate term frequency for each term in one document
-
+    require `textblob` package
+        
     Parameters
     ----------
     tokenized_docs: list
@@ -340,6 +383,7 @@ def _tf(tokenized_doc):
         >>> _tf(t_doc)
         {'a': 2, 'b': 1}
     """
+    import textblob
     return dict(textblob.TextBlob(' '.join(tokenized_doc)).word_counts)
 
 def _idf(tokenized_docs, fomula=None):
