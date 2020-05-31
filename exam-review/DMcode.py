@@ -60,7 +60,7 @@ def info_gain():
 
 def metrics_from_confusion_matrix(mat, class_index):
     '''
-    compute precision, recall, f_value from confusion matrix.
+    compute precision, recall, f1_value from confusion matrix.
                          predicted
               -----------------------
               |    |  a  |  b  |  c |
@@ -69,13 +69,13 @@ def metrics_from_confusion_matrix(mat, class_index):
        actual | b  | 14  |  40 |  6 |
               | c  | 18  |  10 | 12 |
               ----------------------- 
-        For class a, precision = 0.73, recall = 0.88, f_value = 0.4
+        For class a, precision = 0.73, recall = 0.88, f1 = 0.8
         Overall, success rate = 0.7
         [from: lec 3 slide 97]
     
     Parameters
     -----------
-    mat: ndarray/ matrix
+    mat: ndarray/matrix
         confusion matrix of an classification result
     class_index: int
         index of class name, start from 0
@@ -86,7 +86,7 @@ def metrics_from_confusion_matrix(mat, class_index):
         {
             precision: float,
             recall:    float,
-            f_value:   float,
+            f1:   float,
             success_rate: float
         }
     
@@ -94,7 +94,7 @@ def metrics_from_confusion_matrix(mat, class_index):
     ---------
         >>> matrix = np.matrix([[88,10,2], [14,40,6], [18,10,12]])
         >>> metrics_from_confusion_matrix(matrix, 0) # for class a
-        {'precision': 0.73, 'recall': 0.88, 'f_value': 0.4, 'successs_rate': 0.7}
+        {'precision': 0.73, 'recall': 0.88, 'f1': 0.8, 'successs_rate': 0.7}
     '''
     pass
 
@@ -122,7 +122,7 @@ def bayesain_probability(likelihood, prior, probability):
     posterior: float
         P(hypothesis|observation)
     '''
-    pass
+    return likelihood * prior / probability
 
 def moving_average():
     '''
@@ -149,140 +149,167 @@ def perplexity():
 # ======================================================
 
 
-def get_token_stream(tokenized_docs, docs_dict):
+def get_token_stream(tokenized_docs):
     """get (term-doc_id) stream
+
+    Parameters
+    ----------
+    tokenized_docs: list
+        A list of list of strings
+
+    Returns
+    -------
+    toekn_stream: list
+        list of tuple (term, doc_id)
+
+    Examples
+    --------
+        >>> tokens = [['a', 'b'], ['a', 'c']]
+        >>> get_token_stream(tokens)
+        [('a', 0), ('b', 0), ('a', 1), ('b', 1)]
     """
     token_stream = []
-    for doc_id in docs_dict:
-        for term in tokenized_docs[doc_id]:
-            token_stream.append((term, doc_id))
+    for doc_id, term in enumerate(tokenized_docs):
+        token_stream.append((term, doc_id))
     return token_stream
 
-def build_indices(tokenized_docs, docs_dict):
-    """main function -- build invertex index
-       assume that the documents set is small enough to be loaded into Memory
+def build_indices(tokenized_docs):
     """
-    token_stream = get_token_stream(tokenized_docs, docs_dict)
-    # print(token_stream)
+    build inverted index
+    
+    Parameters
+    ----------
+    tokenized_docs: list
+        A list of list of strings
+
+    Returns
+    -------
+    indices: dict
+        A dict of which the key is term and value is a list of document id
+
+    Examples
+    --------
+        >>> tokens = [['a', 'b'], ['a', 'c']]
+        >>> build_indices(tokens)
+        {'a': [0, 1], 'b':[0], 'c':[1]}
+    """
+    token_stream = get_token_stream(tokenized_docs)
     indices = {}
 
     for pair in token_stream:
-        if pair[0] in indices:
-            if pair[1] not in indices[pair[0]]:
-                indices[pair[0]].append(pair[1])
+        if pair[0] in indices: # term 
+            if pair[1] not in indices[pair[0]]: # doc_id 
+                indices[pair[0]].append(pair[1]) 
         else:
             indices[pair[0]] = [pair[1]]
     return indices
 
 def _tf(tokenized_doc):
-    """calculate term frequency for each term in each document"""
-    term_tf = {}
-    for term in tokenized_doc:
-        if term not in term_tf:
-            term_tf[term]=1.0
-        else:
-            term_tf[term]+=1.0
+    """
+    calculate term frequency for each term in one document
 
-    # print(term_tf)
-    return term_tf
+    Parameters
+    ----------
+    tokenized_docs: list
+        A list of string 
 
-def _idf(indices, docs_num):
-    """calculate inverse document frequency for every term"""
-    term_df = {}
-    for term in indices:
-        # 一个term的df就是倒排索引中这个term的倒排记录表（对应文档列表）的长度 
-        term_df.setdefault(term, len(indices[term]))
+    Returns
+    -------
+    term_if: dict
+        A dict of {term: frequency}
+
+    Examples
+    --------
+        >>> doc = ['a', 'a', 'b']
+        >>> _tf(t_doc)
+        {'a': 2, 'b': 1}
+    """
+    return dict(textblob(' '.join(tokenized_doc)).word_counts)
+
+def _idf(tokenized_docs, fomula=None):
+    """
+    calculate inverse document frequency for every term
+
+    Parameters
+    ----------
+    tokenized_docs: list
+        A list of list of string (documents)
+    fomula: function
+        The fomula to calculate inverse docuemnt frequency,
+        by default use Russell & Norvig's fomula
+
+    Returns
+    -------
+    term_idf: dict
+        A dict of {term: idf}
+
+    Examples
+    --------
+        >>> tokens = [['a', 'b'], ['a', 'c']]
+        >>> _idf(tokens)
+        {'a': , 'b':, 'c': }
+    """
+    terms = []
+    for doc in tokenized_docs:
+        for term in doc:
+            if term not in terms:
+                terms.append(term)
+
+    def DF(term):
+        df = 0
+    	for doc in books.values():
+        if term in tokenized_docs:
+            df += 1
+        return df 
     
-    term_idf = term_df
-    for term in term_df:
-        term_idf[term] = np.log10(docs_num /term_df[term])
-    # print(term_idf)
+    if fomula == None:
+        def fomula(term):
+            return np.log((len(tokenized_docs)-DF(term)+0.5)/(DF(term)+0.5))
+    
+    def IDF(term):
+        return fomula(term)
+
+    term_idf = {}
+    for term in terms:
+        term_idf[term] = IDF(term)
+
     return term_idf
 
-def tfidf(tokenized_docs, indices):
-    """calcalate tfidf for each term in each document"""
-    term_idf = _idf(indices, len(tokenized_docs))
+def tfidf(tokenized_docs):
+    """
+    calcalate tfidf for each term in each document
+
+    Parameters
+    ----------
+    tokenized_docs: list
+        A list of list of string (documents)
+
+    Returns
+    -------
+    term_tfidf: dict
+        A dict of {doc_id: {term: tfidf}}
+
+    Examples
+    --------
+        >>> tokens = [['a', 'b'], ['a', 'c']]
+        >>> ifidf(tokens)
+        {0:{'a': , 'b':}, 1:{'a':, 'c':  }}
+    """
+    term_idf = _idf(tokenized_docs)
         
     term_tfidf={}
-    doc_id=0
-    for tokenized_doc in tokenized_docs:
+    for doc_id, tokenized_doc in enumerate(tokenized_docs):
         term_tfidf[doc_id] = {}
         term_tf = _tf(tokenized_doc)
         
-        doc_len=len(tokenized_doc)
         for term in tokenized_doc:
-            tfidf = term_tf[term]/doc_len * term_idf[term]
-            term_tfidf[doc_id][term] =tfidf
-        doc_id+=1
-    # print(term_tfidf)
+            tfidf = term_tf[term] / len(tokenized_doc) * term_idf[term]
+            term_tfidf[doc_id][term] = tfidf
     return term_tfidf
 
-def build_terms_dictionary(tokenized_docs):
-    """assign an ID for each term in the vocabulary"""
-    vocabulary = set()
-    for doc in tokenized_docs:
-        for term in doc:
-            vocabulary.add(term)
-    vocabulary = list(vocabulary)
-    dictionary = {}
-    for i in range(len(vocabulary)):
-        dictionary.setdefault(i, vocabulary[i])
-    return dictionary
 
-def vectorize_docs(docs_dict, terms_dict, tf_idf):
-    """ transform documents to vectors
-        using bag-of-words model and if-idf
-    """
-    docs_vectors = np.zeros([len(docs_dict), len(terms_dict)])
-
-    for doc_id in docs_dict:
-        for term_id in terms_dict:
-            if terms_dict[term_id] in tf_idf[doc_id]:
-                docs_vectors[doc_id][term_id] = tf_idf[doc_id][terms_dict[term_id]]
-    return docs_vectors
-
-def vectorize_query(tokenized_query, terms_dict):
-    """ transform user query to vectors 
-        using bag-of-words model and vector normalization
-    """
-    query_vector = np.zeros(len(terms_dict))
-    for term_id in terms_dict:
-        if terms_dict[term_id] in tokenized_query:
-            query_vector[term_id] += 1
-    return query_vector / np.linalg.norm(query_vector)
 
 def cos_similarity(vector1, vector2):
     """compute cosine similarity of two vectors"""
     return np.dot(vector1,vector2)/(np.linalg.norm(vector1)*(np.linalg.norm(vector2))) 
 
-def compute_simmilarity(docs_vectors, query_vector, docs_dict):
-    """compute all similarites between user query and all documents"""
-    similarities = {}
-    for doc_id in docs_dict:
-        similarities[doc_id] = cos_similarity(docs_vectors[doc_id], query_vector)
-    return similarities
-
-# tokenized_docs = [
-#     ['hello', 'world'],
-#     ['hello', 'python'],
-#     ['i', 'love', 'c', 'java', 'python', 'typescript', 'and', 'php'],
-#     ['use', 'python', 'to', 'build', 'inverted', 'indices'],
-#     ['you', 'and', 'me', 'are', 'in', 'one', 'world']
-#                 ]
-# tokenized_query = ["python", "indices"]
-# docs_dict = {
-#     0: "docs[0]",
-#     1: "docs[1]",
-#     2: "docs[2]",
-#     3: "docs[3]",
-#     4: "docs[4]"
-# }
-# indices = {'and': [2, 4], 'are': [4], 'build': [3], 'c': [2], 'hello': [0, 1], 'i': [2], 
-#         'in': [4], 'indices': [3], 'inverted': [3], 'java': [2], 'love': [2], 'me': [4],
-#         'one': [4], 'php': [2], 'python': [1, 2, 3], 'to': [3], 'typescript': [2], 'use'
-#         : [3], 'world': [0, 4], 'you': [4]}
-# tf_idf = tfidf(tokenized_docs, indices)
-# terms_dict = build_terms_dictionary(tokenized_docs);
-# docs_vectors = vectorize_docs(docs_dict, terms_dict, tf_idf)
-# query_vector = vectorize_query(tokenized_query, terms_dict)
-# print(compute_simmilarity(docs_vectors, query_vector, docs_dict))
