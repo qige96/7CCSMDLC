@@ -1076,8 +1076,12 @@ def naive_bayes(X, y, x, use_laplace=False, print_log=False):
         training data
     y: 1darray
         labels for each rwo in traiing data
+    x: 1darray
+        one sample whose label is to be determined
     use_laplace: bool, default False
         whether to use Laplace estimation
+    print_log: bool
+        whether to print intermediate results
 
     Returns
     -------
