@@ -346,6 +346,57 @@ def info_gain(parent:list, children:list):
 #               Classification Metrics
 # ======================================================
 
+def build_confmat(predicted, actual, return_type='matrix'):
+    '''
+    construct a confusion matrix based on predicted and actual results
+                        predicted
+                -------------------
+                |     |  Y  |  N  |
+                -------------------
+                |  Y  | TP  | FN  |
+          actual|  N  | FP  | TN  |
+                -------------------
+    Call the function from `sklearn` package and reorganise the data so 
+    as to fit with the format (as above) in lecture slides.
+
+    Parameters
+    ----------
+    predicted: list/1darray
+        a list of 0 and 1, predicted result for each test samples
+    actual: list/1darray
+        a list of 0 and 1, actual label for each test samples
+    return_type: str
+        determine which form of confusion matrix to return, could be
+        'matrix', 'DataFrame', or '2d-array'
+
+    Returns
+    -------
+    mat: matrix/2darray/pd.DataFrame
+        confusion matrix for this calssification result
+
+    Example
+    -------
+        >>> actual = [0, 1, 0, 1]; predicted = [1, 1, 1, 0]
+        >>> build_confmat(predicted, actual)
+        matrix([[1, 1],
+                [2, 0]], dtype=int64)
+        >>> build_confmat(predicted, actual, 'DataFrame')
+           Y  N
+        Y  1  1
+        N  2  0
+    '''
+    y_true = np.array(actual)
+    y_pred = np.array(predicted)
+    from sklearn.metrics import confusion_matrix
+    confmat = confusion_matrix(y_true, y_pred, labels=[1, 0])
+    if return_type == 'matrix':
+        return np.matrix(confmat)
+    elif return_type == 'DataFrame':
+        return pd.DataFrame(confmat, columns=['Y','N'], index=['Y','N'])
+    # return 2d-array 
+    return confmat
+    
+
 def confmat_metrics(mat):
     '''
     compute success rate, error rate, true positive rate, false positive rate,
@@ -530,6 +581,55 @@ def exponential_smoothing(series, alpha):
 #  more info - https://www.jianshu.com/p/75b1137c1b18
 # ======================================================
 
+def clear_symbols(text):
+    """remove symbols like commas, semi-commas
+
+    :param text: str, or list of str
+    :return: str, or list of str, without non alphanumeric simbols
+    """
+    simbols = re.compile("[\s+\.\!\/_,$%^*()+\"\']+|[+——！，。？、~@#￥%……&*（）：]+")
+    if type(text) is str:   
+        processed_text = re.sub(simbols, ' ', text)
+        return processed_text
+    elif type(text) is list:
+        return [re.sub(simbols, ' ', item) for item in text]
+    else:
+        raise TypeError("This function only accept str or list as argument")
+
+def lowercase(text):
+    """turn all the characters to be lowercase
+    
+    :param text: str, or list of str
+    :return: str, or list of str, with all characters lowercased
+    """
+    if type(text) is str:
+        return text.lower()
+    elif type(text) is list:
+        return [item.lower() for item in text]
+    else:
+        raise TypeError("This function only accept str or list as argument")
+
+def tokenize(docs):
+    '''tokenize documents, simply split strings according to spaces
+
+    :param docs: list of str
+    :return: list of list of str
+    '''
+    token_stream = []
+    for doc in docs:
+        token_stream.append(doc.split())
+    return token_stream
+
+def preprocess(docs):
+    """clear symbols, lowercase, tokenize, get clean tokenized docs
+    
+    :param docs: list of str
+    :return: list of list of str
+    """
+    normalized_docs = lowercase(clear_symbols(docs))
+    tokenized_docs = tokenize(normalized_docs)
+    return tokenized_docs
+
 
 def get_token_stream(tokenized_docs):
     """get (term-doc_id) stream
@@ -586,6 +686,40 @@ def build_indices(tokenized_docs):
         else:
             indices[pair[0]] = [pair[1]]
     return indices
+
+def build_term_doc_mat(tokenized_docs):
+    '''
+    construct a term-document matrix based on given corpus
+
+    Parameters
+    ----------
+    tokenized_docs: list
+        A list of list of strings
+
+    Returns
+    -------
+    mat: pd.DataFrame
+        a term-docuemnt matrix where rows are docs and columns are terms
+
+    Examples
+    --------
+        >>> t_docs = [['hello', 'world'], ['hello', 'data', 'mining']]
+        >>> build_term_doc_mat(t_docs)
+           hello  world  data  mining
+        0      1      1     0       0
+        1      1      0     1       1
+    '''
+    terms = []
+    for doc in tokenized_docs:
+        for term in doc:
+            if term not in terms:
+                terms.append(term)
+    mat = np.zeros([len(tokenized_docs), len(terms)], dtype=int)
+    for doc_id, doc in enumerate(tokenized_docs):
+        for term_id, term in enumerate(terms):
+            if term in doc:
+                mat[doc_id, term_id] += 1
+    return pd.DataFrame(mat, columns=terms)
 
 def _tf(tokenized_doc):
     """
