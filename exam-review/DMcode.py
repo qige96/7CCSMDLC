@@ -994,20 +994,17 @@ def two_item_sets(one_sets, txs, min_coverage):
     --------
         from Lecure 6 Slide 13
         >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
-        >>> one_sets = ['o', 's', 'm', 'w', 'd']
+        >>> one_sets = ['o', 's', 'w', 'd']
         >>> two_item_sets(one_sets, txs, 2) 
         [('o', 's'), ('o', 'd')]
         >>> two_item_sets(one_sets, txs, 1)
-        [('o', 's'), ('o', 'm'), ('o', 'w'), ('o', 'd'), ('s', 'w'), ('s', 'd'), ('m', 'w')]
+        [('o', 's'), ('o', 'w'), ('o', 'd'), ('s', 'w'), ('s', 'd')]
     '''
     two_sets = []
     from itertools import combinations_with_replacement
     for tup in combinations_with_replacement(one_sets, 2):
         if len(set(tup)) == 2:
-            for tx in txs:
-                if (tup[0] in tx) and (tup[1] in tx):
-                    two_sets.append(tup)
-                    break
+            two_sets.append(tup)
     return filter_item_sets_with_coverage(two_sets, txs, min_coverage)
 
 def three_item_sets(two_sets, txs, min_coverage):
@@ -1048,10 +1045,7 @@ def three_item_sets(two_sets, txs, min_coverage):
     from itertools import combinations_with_replacement
     for tup in combinations_with_replacement(items, 3):
         if len(set(tup)) == 3:
-            for tx in txs:
-                if (tup[0] in tx) and (tup[1] in tx) and (tup[2] in tx):
-                    three_sets.append(tup)
-                    break
+            three_sets.append(tup)
     return filter_item_sets_with_coverage(three_sets, txs, min_coverage)
 
 
