@@ -192,7 +192,7 @@ def owc(X, y):
         ...               [2, 6],[5, 4],
         ...               [9, 3],[7, 3],[6, 1],[4, 2],[9, 8],[8, 8],[2, 5]])
         >>> y = np.array([0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2])
-        >>> owc(X, y) # manually work out as 110.15
+        >>> owc(X, y) # manually worked out as 110.15
         110.14285714285714
     '''
     y = np.array(y)
@@ -218,7 +218,7 @@ def obc(X, y):
         ...               [2, 6],[5, 4],
         ...               [9, 3],[7, 3],[6, 1],[4, 2],[9, 8],[8, 8],[2, 5]])
         >>> y = np.array([0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2])
-        >>> obc(X,y) # manually work out as 20.2
+        >>> obc(X,y) # manually worked out as 20.2
         20.530612244897963
     '''
     y = np.array(y)
@@ -940,6 +940,15 @@ def filter_item_sets_with_coverage(item_sets, txs, lower_bound):
             new_set.append(i)
     return new_set
 
+def get_items(item_sets):
+    '''extreact items from transactions'''
+    items = []
+    for item_set in item_sets:
+        for item in item_set:
+            if item not in items:
+                items.append(item)
+    return items
+
 def one_item_sets(txs, min_coverage):
     '''
     construct one-item set from a batch of transactions
@@ -961,16 +970,13 @@ def one_item_sets(txs, min_coverage):
         from Lecure 6 Slide 12
         >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
         >>> one_item_sets(txs, 2)
-        ['o', 's', 'w', 'd']
+        [('o',), ('s',), ('w',), ('d',)]
         >>> one_item_sets(txs, 1)
-        ['o', 's', 'm', 'w', 'd']
+        [('o',), ('s',), ('m',), ('w',), ('d',)]
     '''
-    one_set = []
-    for tx in txs:
-        for item in tx:
-            if item not in one_set:
-                one_set.append(item)
-    return filter_item_sets_with_coverage(one_set, txs, min_coverage)
+    items = get_items(txs)
+    one_sets = [(i,) for i in items]
+    return filter_item_sets_with_coverage(one_sets, txs, min_coverage)
 
 def two_item_sets(one_sets, txs, min_coverage):
     '''
@@ -994,15 +1000,16 @@ def two_item_sets(one_sets, txs, min_coverage):
     --------
         from Lecure 6 Slide 13
         >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
-        >>> one_sets = ['o', 's', 'w', 'd']
+        >>> one_sets = [('o',), ('s',), ('w',), ('d',)]
         >>> two_item_sets(one_sets, txs, 2) 
         [('o', 's'), ('o', 'd')]
         >>> two_item_sets(one_sets, txs, 1)
         [('o', 's'), ('o', 'w'), ('o', 'd'), ('s', 'w'), ('s', 'd')]
     '''
     two_sets = []
+    items = get_items(one_sets)
     from itertools import combinations_with_replacement
-    for tup in combinations_with_replacement(one_sets, 2):
+    for tup in combinations_with_replacement(items, 2):
         if len(set(tup)) == 2:
             two_sets.append(tup)
     return filter_item_sets_with_coverage(two_sets, txs, min_coverage)
