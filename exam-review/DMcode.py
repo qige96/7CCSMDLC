@@ -835,106 +835,6 @@ def cos_similarity(vector1, vector2):
 #                 Association Rules
 # ======================================================
 
-def one_item_sets(txs):
-    '''
-    construct one-item set from a batch of transactions
-    
-    Parameters
-    ----------
-    txs: list
-        list of transactions that is a list of items
-
-    Returns
-    -------
-    one_set: list
-        list of one-item set
-
-    Examples
-    --------
-        from Lecure 6 Slide 12
-        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
-        >>> one_item_sets(txs)
-        ['o', 's', 'm', 'w', 'd']
-    '''
-    one_set = []
-    for tx in txs:
-        for item in tx:
-            if item not in one_set:
-                one_set.append(item)
-    return one_set
-
-def two_item_sets(one_sets, txs):
-    '''
-    construct two-item set from one-item set
-    
-    Parameters
-    ----------
-    one_sets: list
-        one-item sets
-    txs: list
-        list of transactions that is a list of items
-
-    Returns
-    -------
-    two_sets: list
-        list of two-item sets
-
-    Examples
-    --------
-        from Lecure 6 Slide 13
-        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
-        >>> one_sets = ['o', 's', 'm', 'w', 'd']
-        >>> two_item_sets(one_sets, txs)
-        [('o', 's'), ('o', 's'), ('o', 'm'), ('o', 'w'), ('o', 'd'), ('o', 'd'), ('s', 'w'), ('s', 'd'), ('m', 'w')]
-    '''
-    two_sets = []
-    from itertools import combinations_with_replacement
-    for tup in combinations_with_replacement(one_sets, 2):
-        if len(set(tup)) == 2:
-            for tx in txs:
-                if (tup[0] in tx) and (tup[1] in tx):
-                    two_sets.append(tup)
-    return two_sets
-
-def three_item_sets(two_sets, txs):
-    '''
-    construct three-item set from one-item set
-    
-    Parameters
-    ----------
-    two_sets: list
-        two-item sets
-    txs: list
-        list of transactions that is a list of items
-
-    Returns
-    -------
-    three_sets: list
-        list of three-item sets
-
-    Examples
-    --------
-        from Lecure 6 Slide 13
-        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
-        >>> two_sets = [('o','s'), ('o','d')]
-        >>> three_item_sets(two_sets, txs)
-        [('o', 's', 'd')]
-    '''
-    three_sets = []
-    items = []
-    for i in two_sets:
-        for k in i:
-            if k not in items:
-                items.append(k)
-
-    from itertools import combinations_with_replacement
-    for tup in combinations_with_replacement(items, 3):
-        if len(set(tup)) == 3:
-            for tx in txs:
-                if (tup[0] in tx) and (tup[1] in tx) and (tup[2] in tx):
-                    three_sets.append(tup)
-    return three_sets
-
 def coverage(item_set, txs):
     '''
     count the number of instances covered by the rule
@@ -1015,6 +915,145 @@ def confidence(rule, txs):
         1.0
     '''
     return coverage(rule[0]+rule[1], txs) / coverage(rule[0], txs)
+
+def filter_item_sets_with_coverage(item_sets, txs, lower_bound):
+    '''
+    filter out item set with given minimum coverage
+
+    Parameters
+    ----------
+    item_sets: list
+        list of item sets
+    txs: list
+        list of transactions
+    lower_bound: int
+        minimun coverage that an item set should meet
+
+    Returns
+    -------
+    new_set : list
+        a new list of item sets in which all item sets meet minimun coverage
+    '''
+    new_set = []
+    for i in item_sets:
+        if coverage(i, txs) >= lower_bound:
+            new_set.append(i)
+    return new_set
+
+def one_item_sets(txs, min_coverage):
+    '''
+    construct one-item set from a batch of transactions
+    
+    Parameters
+    ----------
+    txs: list
+        list of transactions that is a list of items
+    min_coverage: int
+        minumun coverage the item set should meet
+
+    Returns
+    -------
+    one_set: list
+        list of one-item set
+
+    Examples
+    --------
+        from Lecure 6 Slide 12
+        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
+        >>> one_item_sets(txs, 2)
+        ['o', 's', 'w', 'd']
+        >>> one_item_sets(txs, 1)
+        ['o', 's', 'm', 'w', 'd']
+    '''
+    one_set = []
+    for tx in txs:
+        for item in tx:
+            if item not in one_set:
+                one_set.append(item)
+    return filter_item_sets_with_coverage(one_set, txs, min_coverage)
+
+def two_item_sets(one_sets, txs, min_coverage):
+    '''
+    construct two-item set from one-item set
+    
+    Parameters
+    ----------
+    one_sets: list
+        one-item sets
+    txs: list
+        list of transactions that is a list of items
+    min_coverage: int
+        minumun coverage the item set should meet
+
+    Returns
+    -------
+    two_sets: list
+        list of two-item sets
+
+    Examples
+    --------
+        from Lecure 6 Slide 13
+        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
+        >>> one_sets = ['o', 's', 'm', 'w', 'd']
+        >>> two_item_sets(one_sets, txs, 2) 
+        [('o', 's'), ('o', 'd')]
+        >>> two_item_sets(one_sets, txs, 1)
+        [('o', 's'), ('o', 'm'), ('o', 'w'), ('o', 'd'), ('s', 'w'), ('s', 'd'), ('m', 'w')]
+    '''
+    two_sets = []
+    from itertools import combinations_with_replacement
+    for tup in combinations_with_replacement(one_sets, 2):
+        if len(set(tup)) == 2:
+            for tx in txs:
+                if (tup[0] in tx) and (tup[1] in tx):
+                    two_sets.append(tup)
+                    break
+    return filter_item_sets_with_coverage(two_sets, txs, min_coverage)
+
+def three_item_sets(two_sets, txs, min_coverage):
+    '''
+    construct three-item set from one-item set
+    
+    Parameters
+    ----------
+    two_sets: list
+        two-item sets
+    txs: list
+        list of transactions that is a list of items
+    min_coverage: int
+        minumun coverage the item set should meet
+
+    Returns
+    -------
+    three_sets: list
+        list of three-item sets
+
+    Examples
+    --------
+        from Lecure 6 Slide 13
+        >>> txs = [['o','s'], ['m','o','w'], ['o','d'], ['o','d','s'], ['w','s']]
+        >>> two_sets = [('o','s'), ('o','d')]
+        >>> three_item_sets(two_sets, txs, 2)
+        []
+        >>> three_item_sets(two_sets, txs, 1)
+        [('o', 's', 'd')]
+    '''
+    three_sets = []
+    items = []
+    for i in two_sets:
+        for k in i:
+            if k not in items:
+                items.append(k)
+
+    from itertools import combinations_with_replacement
+    for tup in combinations_with_replacement(items, 3):
+        if len(set(tup)) == 3:
+            for tx in txs:
+                if (tup[0] in tx) and (tup[1] in tx) and (tup[2] in tx):
+                    three_sets.append(tup)
+                    break
+    return filter_item_sets_with_coverage(three_sets, txs, min_coverage)
+
 
 # ======================================================
 #                    Miscellaneous
