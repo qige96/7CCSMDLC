@@ -37,13 +37,13 @@ def cluster_diameter(C, print_log=False):
         >>> cluster_diameter(cluster)
         2.23606797749979
     '''
-    from scipy.spatial.distance import cdist
-    dists = cdist(C, C)
+    from sklearn.metrics import pairwise_distances
+    dists = pairwise_distances(C, C)
     idx = np.unravel_index(dists.argmax(), dists.shape)
     if print_log:
         print('distances:\n', dists)
         print('indices of two points in this cluster:\n', idx[0], idx[1])
-        print('The two points:\n', C[idx[0]], C[idx[1]])
+
     return dists.max()
 
 def single_link(C1, C2, print_log=False):
@@ -69,8 +69,8 @@ def single_link(C1, C2, print_log=False):
         >>> single_link(cluster1, cluster2)
         1.0
     '''
-    from scipy.spatial.distance import cdist
-    dists = cdist(C1, C2)
+    from sklearn.metrics import pairwise_distances
+    dists = pairwise_distances(C1, C2)
     idx = np.unravel_index(dists.argmin(), dists.shape)
 
     if print_log:
@@ -102,8 +102,8 @@ def complete_link(C1, C2, print_log=False):
         >>> complete_link(cluster1, cluster2)
         5.0
     '''
-    from scipy.spatial.distance import cdist
-    dists = cdist(C1, C2)
+    from sklearn.metrics import pairwise_distances
+    dists = pairwise_distances(C1, C2)
     idx = np.unravel_index(dists.argmax(), dists.shape)
 
     if print_log:
@@ -135,8 +135,8 @@ def average_link(C1, C2,print_log=False):
         >>> average_link(cluster1, cluster2)
         2.6591613225184823
     '''
-    from scipy.spatial.distance import cdist
-    dists = cdist(C1, C2)
+    from sklearn.metrics import pairwise_distances
+    dists = pairwise_distances(C1, C2)
 
     if print_log:
         print('distances:\n', dists)
@@ -184,6 +184,16 @@ def owc(X, y):
     :param X: n by m matrix - feature data
     :param y: n vecter - label data
     :return: floating number - within cluster distance
+
+    Examples
+    --------
+        from Exam 2019 Q 3
+        >>> X = np.array([[4, 9],[6, 4],
+        ...               [2, 6],[5, 4],
+        ...               [9, 3],[7, 3],[6, 1],[4, 2],[9, 8],[8, 8],[2, 5]])
+        >>> y = np.array([0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2])
+        >>> owc(X, y) # manually work out as 110.15
+        110.14285714285714
     '''
     y = np.array(y)
     wc = 0.0
@@ -200,11 +210,21 @@ def obc(X, y):
     :param X: n by m matrix - feature data
     :param y: n vecter - label data
     :return: floating number - between cluster distance
+    
+    Examples
+    --------
+        from Exam 2019 Q 3
+        >>> X = np.array([[4, 9],[6, 4],
+        ...               [2, 6],[5, 4],
+        ...               [9, 3],[7, 3],[6, 1],[4, 2],[9, 8],[8, 8],[2, 5]])
+        >>> y = np.array([0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2])
+        >>> obc(X,y) # manually work out as 20.2
+        20.530612244897963
     '''
     y = np.array(y)
     bc = 0.0
     centres = []
-    for i in range(len(set(y))):
+    for i in set(y):
         centres.append(np.mean(X[y==i], axis=0))
     for i in range(len(centres)):
         for j in range(i+1, len(centres)):
