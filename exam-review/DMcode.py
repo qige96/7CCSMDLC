@@ -552,26 +552,6 @@ def cohen_kappa(mat):
     ck_coef = (Pr_a - Pr_e) / (1 - Pr_e)
     return ck_coef
 
-def bayesain_probability(likelihood, prior, probability):
-    '''
-    compute the posterior probability using bayes theorem
-    
-    Parameters
-    -----------
-    likelihood: float
-        P(observation|hypothesis)
-    prior: float
-        P(hypothesis)
-    probability: float
-        P(observation)
-        
-    Returns
-    --------
-    posterior: float
-        P(hypothesis|observation)
-    '''
-    return likelihood * prior / probability
-
 
 # ======================================================
 #                    Time Series
@@ -1036,7 +1016,131 @@ def confidence(rule, txs):
     '''
     return coverage(rule[0]+rule[1], txs) / coverage(rule[0], txs)
 
+# ======================================================
+#                    Miscellaneous
+# ======================================================
+
+def normalize_numeric(arr):
+    '''
+    perform standardised transformation to a numeric variable by
+    firstly subtracting mean, and then divided by std
+
+    Parameters
+    ----------
+    arr: list/1darray
+        array like object
+
+    Returns
+    -------
+    nor_arr: 1darray
+        normalised array
+
+    Examples
+    --------
+        >>> normalize_numeric([1, 2, 3, 4, 5, 6])
+        array([-1.46385011, -0.87831007, -0.29277002,  0.29277002,  0.87831007,
+                1.46385011])
+    '''
+    arr = np.array(arr)
+    mean = np.mean(arr)
+    std = np.std(arr)
+    return (arr - mean) / std
+
+def bayesain_probability(likelihood, prior, probability):
+    '''
+    compute the posterior probability using bayes theorem
+    
+    Parameters
+    -----------
+    likelihood: float
+        P(observation|hypothesis)
+    prior: float
+        P(hypothesis)
+    probability: float
+        P(observation)
+        
+    Returns
+    --------
+    posterior: float
+        P(hypothesis|observation)
+    '''
+    return likelihood * prior / probability
+
+def naive_bayes(X, y, x, use_laplace=False, print_log=False):
+    '''
+    compute probability for each event in y useing naive bayes method
+
+    Parameters
+    ----------
+    X: matrix/2darray
+        training data
+    y: 1darray
+        labels for each rwo in traiing data
+    use_laplace: bool, default False
+        whether to use Laplace estimation
+
+    Returns
+    -------
+    probs: dict
+        probability for each event (label) in y
+
+    Examples
+    --------
+        From Lecture 3 Slide 67
+        >>> X = np.array([['sunny', 'hot', 'high', False],
+        ...        ['sunny', 'hot', 'high', True],
+        ...        ['overcast', 'hot', 'high', False],
+        ...        ['rainy', 'mild', 'high', False],
+        ...        ['rainy', 'cool', 'normal', False],
+        ...        ['rainy', 'cool', 'normal', True],
+        ...        ['overcast', 'cool', 'normal', True],
+        ...        ['sunny', 'mild', 'high', False],
+        ...        ['sunny', 'cool', 'normal', False],
+        ...        ['rainy', 'mild', 'normal', False],
+        ...        ['sunny', 'mild', 'normal', True],
+        ...        ['overcast', 'mild', 'high', True],
+        ...        ['overcast', 'hot', 'normal', False],
+        ...        ['rainy', 'mild', 'high', True]], dtype=object)
+        >>> y = np.array(['no', 'no', 'yes', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'yes',
+        ...         'yes', 'yes', 'yes', 'no'], dtype=object)
+        >>> x = np.array(['sunny', 'cool', 'high', True], dtype=object)
+        >>> naive_bayes(X, y, x, print_log=False)
+        'no'
+    '''
+    probs = {}
+    cls1, cls2 = set(y)
+
+    # compute probability for each attributes in x
+    for cls in (cls1, cls2):
+        probs[cls] = []
+        dat = X[y==cls]
+        for attr in x:
+            count = 0
+            for row in dat:
+                if attr in row:
+                    count += 1
+            if use_laplace:
+                probs[cls].append((count+1)/(len(dat)+len(x)))
+            else:
+                probs[cls].append((count)/(len(dat)))
+    
+    Pr_cls1 = len(X[y==cls1]) / len(X)
+    Pr_cls2 = len(X[y==cls2]) / len(X)
+    
+    # compute Pr(cls1) / Pr(cls2)
+    from functools import reduce
+    odd = (reduce(lambda x,y:x * y, probs[cls1]) * Pr_cls1) / \
+            (reduce(lambda x,y:x * y,probs[cls2]) * Pr_cls2)
+    if odd < 1.0:
+        return cls2
+    if print_log:
+        print('cls1:', cls1, '    cls2:', cls2)
+        print('Pr(%s):'%cls1, Pr_cls1, '    Pr(%s):'%cls2, Pr_cls2)
+        print('Probability of each attribute in x for each label:\n', probs)
+    return cls1
 
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+
