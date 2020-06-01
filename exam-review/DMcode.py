@@ -1131,7 +1131,7 @@ def naive_bayes(X, y, x, use_laplace=False, print_log=False):
     Pr_cls1 = len(X[y==cls1]) / len(X)
     Pr_cls2 = len(X[y==cls2]) / len(X)
     
-    # compute Pr(cls1) / Pr(cls2)
+    # compute Pr(cls1|x) / Pr(cls2|x)
     from functools import reduce
     odd = (reduce(lambda x,y:x * y, probs[cls1]) * Pr_cls1) / \
             (reduce(lambda x,y:x * y,probs[cls2]) * Pr_cls2)
