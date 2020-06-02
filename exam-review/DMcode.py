@@ -172,10 +172,10 @@ def centroid_link(C1, C2, print_log=False):
         print('centroids of two clusters:\n', c1, '\n', c2)
     return np.linalg.norm(c1-c2)
 
-def square_of_distance(C, b):
-    C = np.array(C)
+def square_of_distance(c, b):
+    c = np.array(c)
     b = np.array(b)
-    return np.linalg.norm(C-b)**2 
+    return np.sum((c-b)**2)
 
 def owc(X, y):
     '''
