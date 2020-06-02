@@ -587,6 +587,7 @@ def clear_symbols(text):
     :param text: str, or list of str
     :return: str, or list of str, without non alphanumeric simbols
     """
+    import re
     simbols = re.compile("[\s+\.\!\/_,$%^*()+\"\']+|[+——！，。？、~@#￥%……&*（）：]+")
     if type(text) is str:   
         processed_text = re.sub(simbols, ' ', text)
@@ -941,7 +942,7 @@ def filter_item_sets_with_coverage(item_sets, txs, lower_bound):
     return new_set
 
 def get_items(item_sets):
-    '''extreact items from transactions'''
+    '''extreact items from item sets or transactions'''
     items = []
     for item_set in item_sets:
         for item in item_set:
@@ -1043,12 +1044,7 @@ def three_item_sets(two_sets, txs, min_coverage):
         [('o', 's', 'd')]
     '''
     three_sets = []
-    items = []
-    for i in two_sets:
-        for k in i:
-            if k not in items:
-                items.append(k)
-
+    items = get_items(two_sets)
     from itertools import combinations_with_replacement
     for tup in combinations_with_replacement(items, 3):
         if len(set(tup)) == 3:
