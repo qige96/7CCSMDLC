@@ -408,8 +408,7 @@ def build_confmat(predicted, actual, return_type='matrix'):
     y_true = np.array(actual)
     y_pred = np.array(predicted)
     from sklearn.metrics import confusion_matrix
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[1, 0]).ravel()
-    confmat = np.array([[tp, fn],[fp, tn]])
+    confmat = confusion_matrix(y_true, y_pred, labels=[1, 0]).ravel()
     if return_type == 'matrix':
         return np.matrix(confmat)
     elif return_type == 'DataFrame':
