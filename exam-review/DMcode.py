@@ -197,7 +197,7 @@ def owc(X, y):
     '''
     y = np.array(y)
     wc = 0.0
-    for i in range(len(set(y))):
+    for i in set(y):
         c = np.mean(X[y==i], axis=0)
         for x in X[y==i]:
             wc += square_of_distance(x, c)
