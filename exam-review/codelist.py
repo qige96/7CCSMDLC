@@ -222,7 +222,7 @@ def bga_crossover(chr1:str, chr2:str, cxp1:int, cxp2=None)->tuple:
 
 
 # ===============================================
-#                 Ant Colony
+#             Evolution Strategy
 # ===============================================
 
 def plus_strategy(parents, offspring, func):
@@ -264,7 +264,47 @@ def local_discrete_cx(x1, x2, s1, s2, r):
     return new_x, new_s
 
 def local_intermediate_cx(x1, x2, s1, s2, r):
-    pass
+    new_x = x1 * r + x2 * (1-r)
+    new_s = s1 * r + s2 * (1-r)
+    return new_x, new_s
+    
+def global_discrete_cx(x1, X, s1, S, r, j):
+    new_x = np.zeros(len(x1))
+    new_s = np.zeros(len(s1))
+    for i in len(len(r)):
+        if r[i] <= 0.5:
+            new_x[i] = x1[i]
+            new_s[i] = s1[i]
+        else:
+            new_x[i] = X[j[i]][i]
+            new_s[i] = S[j[i]][i]
+
+    return new_x, new_s
+
+def global_intermediate_cx(X, S):
+    new_x = X.mean(axis=0)
+    new_s = S.mean(axis=0)
+    return new_x, new_s
+
+def offspring_mutation(x, s, gau_noises):
+    off_x = x + s * gau_noises
+    return off_x
+
+# ===============================================
+#             Differential Evolution
+# ===============================================
+
+def trial_vector(target_vec, diff_vec1, diff_vec2, beta):
+    return target_vec + beta * (diff_vec1 - diff_vec2)
+
+def offspring_vector(x, u, j):
+    new_x = np.zeros(len(x))
+    for i in range(len(x)):
+        if i in j:
+            new_x[i] = u[i]
+        else:
+            new_x[i] = x[i]
+    return new_x
 
 # ===============================================
 #                 Ant Colony
