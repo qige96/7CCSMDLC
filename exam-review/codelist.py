@@ -5,6 +5,7 @@ a suppliment of KCL BIM lecture notes
 @ Author: Ricky Zhu
 @ email:  rickyzhu@foxmail.com
 '''
+import numpy as np
 
 def bin_int(integer):
     '''convert integer to binary string'''
@@ -218,3 +219,121 @@ def bga_crossover(chr1:str, chr2:str, cxp1:int, cxp2=None)->tuple:
 # print(bga_crossover('11000', '00111', 2))
 # print(bga_crossover('11000', '00111', 2, 4))
 # print(bga_crossover('11000', '00111', 1, 4))
+
+
+# ===============================================
+#                 Ant Colony
+# ===============================================
+
+def plus_strategy(parents, offspring, func):
+    '''
+
+    '''
+    population = np.concatenate([parents, offspring])
+    miu = len(parents)
+    fitness = [func(x) for x in population]
+    idx = np.argsort(fitness)
+    res = []
+    for i in idx[:miu]:
+        res.append(population[i])
+    return np.array(res)
+
+def comma_strategy(parents, offspring, func):
+    '''
+
+    '''
+    population = offspring
+    miu = len(parents)
+    fitness = [func(x) for x in population]
+    idx = np.argsort(fitness)
+    res = []
+    for i in idx[:miu]:
+        res.append(population[i])
+    return np.array(res)
+
+def local_discrete_cx(x1, x2, s1, s2, r):
+    new_x = np.zeros(len(x1))
+    new_s = np.zeros(len(s1))
+    for i in len(len(r)):
+        if r[i] <= 0.5:
+            new_x[i] = x1[i]
+            new_s[i] = s1[i]
+        else:
+            new_x[i] = x2[i]
+            new_s[i] = s2[i]
+    return new_x, new_s
+
+def local_intermediate_cx(x1, x2, s1, s2, r):
+    pass
+
+# ===============================================
+#                 Ant Colony
+# ===============================================
+
+class SACOGraph:
+    def __init__(self, adjmat, pheroomes, evaperation_rate):
+        self.adjmat = adjmat
+        self.TAO = pheroomes
+        self.p = evaperation_rate
+
+    def transition_probability(self):
+        probs = np.zeros(self.adjmat.shape)
+        for i in range(self.adjmat.shape[0]):
+            for j in range(self.adjmat.shape[1]):
+                probs[i, j] = self.TAO[i,j] / self.TAO[i].sum()
+        return probs
+
+    def evaperate_pheromone(self):
+        self.TAO = self.TAO * (1 - self.p)
+
+    def update_pheromone(self, Q, func, routes):
+        '''
+
+        '''
+        for i in range(self.adjmat.shape[0]):
+            for j in range(self.adjmat.shape[1]):
+                delta_tao_ij = []
+                for k in range(len(routes)):
+                    if (i,j) in routes[k]:
+                        delta_tao_ij.append(Q/func(routes))
+                self.TAO[i.j] += sum(delta_tao_ij)
+
+
+# ===============================================
+#          Parcle Swarm Optimization
+# ===============================================
+
+def update_velocity(V, X, Y, Y_hat, c1,c2, r1,r2):
+    '''
+
+    '''
+    new_V = V + c1 * r1 * (Y-X) + c2 * r2 * (Y_hat - X)
+    return new_V
+
+def update_particlew(X, new_V):
+    '''
+
+    '''
+    new_X = X + new_V
+    return new_X
+
+def updatew_personal_best(Y, new_X, func):
+    '''
+
+    '''
+    res = []
+    for i in range(len(Y)):
+        if func(Y[i]) < func(new_X[i]):
+            res.append(Y[i])
+        else:
+            res.append(new_X[i])
+        return np.array(res)
+
+def update_global_best(new_Y, func):
+    '''
+
+    '''
+    fitness = [func(y) for y in new_Y]
+    min_idx = np.argmin(fitness)
+    new_global_best = new_Y[min_idx]
+    return new_global_best
