@@ -226,6 +226,14 @@ def bga_crossover(chr1:str, chr2:str, cxp1:int, cxp2=None)->tuple:
 # ===============================================
 
 def plus_strategy(parents, offspring, func):
+    '''
+    Selection with plus strategy (miu + lambda)
+
+    Parameters
+    ----------
+    parents, offspring - 2D np array, candidate solutions for parent and offspring
+    func - function, to compute fitness (the smaller value, the better performance)
+    '''
     population = np.concatenate([parents, offspring])
     miu = len(parents)
     fitness = [func(x) for x in population]
@@ -254,6 +262,11 @@ def local_discrete_cx(x1, x2, s1, s2, r):
     x1, x2 - 1D np array, selected parent individuals
     s1, s2 - 1D np array, respective strategy parameter of parent individuals
     r      - 1D np array, a sequence of random numbers
+
+    Returns
+    -------
+    new_x - 1D np array, offspring produced by crossover process
+    new_s - 1D np array, strategy parameter of the produced offspring
     '''
     new_x = np.zeros(len(x1))
     new_s = np.zeros(len(s1))
@@ -290,26 +303,40 @@ def global_intermediate_cx(X, S):
     return new_x, new_s
 
 def offspring_mutation(x, s, noises):
+    '''
+    Mutation process
+
+    Parameters
+    ----------
+    x      - 1D np array, offspring produced by crossover
+    s      - 1D np array, strategy parameter of the given offspring
+    noises - 1D np array, a sequence of random numbers
+
+    Returns
+    -------
+    off_x - 1D np array, offspring produced by mutatio process
+    '''
     off_x = x + s * noises
     return off_x
 
 # Examples: Tutorial 6, Q 6
 # --------------------------
-def f(x):
-    return x[0]**2 * np.sin(x[1]) + 2*(x[0]-x[1]) - x[1]**2 * np.cos(x[0])
-X = np.array([[3, 8],[10,-10],[5, -5]])
-S = np.array([[1, 2],[3, 4],[5, 6],])
-r = np.array([0.5, 0.5])
-noises = np.array([1,4])
-new_x1, new_s1 = local_intermediate_cx(X[2], X[0], S[2], S[0], r)
-offsp_x1 = offspring_mutation(new_x1, new_s1, noises)
-offsp_s1 = new_s1 * 0.9
+def example_t6_q6():
+    def f(x):
+        return x[0]**2 * np.sin(x[1]) + 2*(x[0]-x[1]) - x[1]**2 * np.cos(x[0])
+    X = np.array([[3, 8],[10,-10],[5, -5]])
+    S = np.array([[1, 2],[3, 4],[5, 6],])
+    r = np.array([0.5, 0.5])
+    noises = np.array([1,4])
+    new_x1, new_s1 = local_intermediate_cx(X[2], X[0], S[2], S[0], r)
+    offsp_x1 = offspring_mutation(new_x1, new_s1, noises)
+    # offsp_s1 = new_s1 * 0.9
 
-new_x2, new_s2 = local_intermediate_cx(X[1], X[2], S[1], S[2], r)
-offsp_x2 = offspring_mutation(new_x2, new_s2, noises)
-offsp_s2 = new_s2 * 0.9
+    new_x2, new_s2 = local_intermediate_cx(X[1], X[2], S[1], S[2], r)
+    offsp_x2 = offspring_mutation(new_x2, new_s2, noises)
+    # offsp_s2 = new_s2 * 0.9
 
-print(plus_strategy(X, [offsp_x1, offsp_x2], f))
+    print(plus_strategy(X, [offsp_x1, offsp_x2], f))
 
 
 
@@ -318,9 +345,37 @@ print(plus_strategy(X, [offsp_x1, offsp_x2], f))
 # ===============================================
 
 def trial_vector(target_vec, diff_vec1, diff_vec2, beta):
+    '''
+    Compute one trial vector
+
+    Parameters
+    ----------
+    target_vec - 1D np array, target vector (x1)
+    diff_vec1, diff_vec2 - 1D np array, individuals to compute 
+        difference vector (x2, x3)
+    beta - float, a user defined parameter
+
+    Returns
+    -------
+    new trial vector
+    '''
     return target_vec + beta * (diff_vec1 - diff_vec2)
 
 def offspring_vector(x, u, j):
+    '''
+    compute one offspring vector
+
+    Parameters
+    ----------
+    x - 1D np array, target vector
+    u - 1D np array, trial vector
+    j - 1D np array, a sequence of random numbers (random 
+        indices of population vectors, range from [0, len(X)-1])
+
+    Returns
+    -------
+    new_x - 1D np array, new offspring vector
+    '''
     new_x = np.zeros(len(x))
     for i in range(len(x)):
         if i in j:
@@ -334,12 +389,30 @@ def offspring_vector(x, u, j):
 # ===============================================
 
 class SACOGraph:
-    def __init__(self, adjmat, pheroomes, evaperation_rate):
+    '''Simple Ant Colony Optimization'''
+
+    def __init__(self, adjmat, pheromones, evaperation_rate):
+        '''
+        Initialize the problem. Note the graph is represented by adjcent matrix.
+
+        Parameters
+        ----------
+        adjmat - 2D np array, adjcent matrix representing the routes graph
+        pheromones - 2D np array, initial pheromone amounts on each road
+        evaperation_rate - float, percentage for pheromone to evaperate
+        '''
         self.adjmat = adjmat
-        self.TAO = pheroomes
+        self.TAO = pheromones
         self.p = evaperation_rate
 
     def transition_probability(self):
+        '''
+        Compute transition probability.
+
+        Returns
+        -------
+        probs - 2D np array, probability of each road for an ant to choose
+        '''
         probs = np.zeros(self.adjmat.shape)
         for i in range(self.adjmat.shape[0]):
             for j in range(self.adjmat.shape[1]):
@@ -347,11 +420,19 @@ class SACOGraph:
         return probs
 
     def evaperate_pheromone(self):
+        '''evaperating pheromone on each road'''
         self.TAO = self.TAO * (1 - self.p)
 
     def update_pheromone(self, Q, func, routes):
         '''
+        Update pheromone on each road
 
+        Parameters
+        ----------
+        Q - float, user defined parameter
+        func - function, user defined
+        routes - list of list containing tuples, 
+            indicating all paths at this iteration
         '''
         for i in range(self.adjmat.shape[0]):
             for j in range(self.adjmat.shape[1]):
@@ -368,21 +449,53 @@ class SACOGraph:
 
 def update_velocity(V, X, Y, Y_hat, c1,c2, r1,r2):
     '''
+    update velocity vectors
 
+    Parameters
+    ----------
+    V -     1D/2D np array, velocity vector(s)
+    X -     1D/2D np array, position vector(s)
+    Y -     1D/2D np array, local best
+    Y_hat - 1D/2D np array, global best
+    c1,c2 - float, user defined parameter
+    r1,r2 - 1D np array, sequence of random numbers
+
+    Returns
+    -------
+    new_V - 1D/2D np array, new velocity vector(s)
     '''
     new_V = V + c1 * r1 * (Y-X) + c2 * r2 * (Y_hat - X)
     return new_V
 
-def update_particlew(X, new_V):
+def update_position(X, new_V):
     '''
+    update postion vector(s)
 
+    Parameters
+    ----------
+    X -     1D/2D np array, current population vector(s)
+    new_V - 1D/2D np array, updated velocity vector(s)
+
+    Returns
+    -------
+    new_X - 1D/2D np array, updated position vector(s)
     '''
     new_X = X + new_V
     return new_X
 
-def updatew_personal_best(Y, new_X, func):
+def update_personal_best(Y, new_X, func):
     '''
+    update personal best
 
+    Parameters
+    ----------
+    Y -     1D/2D np array, current personal best
+    new_X - 1D/2D np array, updated position vector(s)
+    func  - function, fitness/cost function
+
+    Returns
+    -------
+    1D/2D np array, updated personal best
     '''
     res = []
     for i in range(len(Y)):
@@ -390,13 +503,59 @@ def updatew_personal_best(Y, new_X, func):
             res.append(Y[i])
         else:
             res.append(new_X[i])
-        return np.array(res)
+    return np.array(res)
 
-def update_global_best(new_Y, func):
+def update_global_or_local_best(new_Y, func):
     '''
+    Update global/local best
+    
+    Parameters
+    ----------
+    new_Y - 2D np array, updated bests, could be some (for local) or all (for global)
+    func  - function, fitness/cost function
 
+    Returns
+    -------
+    new_global_best - 1D np array, the local/global best
     '''
     fitness = [func(y) for y in new_Y]
     min_idx = np.argmin(fitness)
     new_global_best = new_Y[min_idx]
     return new_global_best
+
+# Example: Tutorial 8 Question 6
+# ------------------------------
+def example_t8_q6():
+    def f(x):
+        return 5 * x[0]**2 - 10 * x[0] * x[1]+ 20 * x[1]**2
+    X = np.array([
+        [10,-5],
+        [-3,4],
+        [2,8],
+        [-1,-5],
+        [7,2]
+    ])
+    Y = np.array([
+        [2,3],
+        [0,2],
+        [3,3],
+        [-8,-4],
+        [6,0],
+    ])
+    V = np.ones([5,2])
+    c1 = 0.2
+    c2 = 0.5
+    r1 = np.ones(2)
+    r2 = np.ones(2)
+
+    Y_hat = update_global_or_local_best(Y, f)
+    new_V = update_velocity(V, X, Y, Y_hat, c1, c2, r1, r2)
+    new_X = update_position(X, new_V)
+    new_Y = update_personal_best(Y, new_X, f)
+    new_y_hat = update_global_or_local_best(new_Y, f)
+
+    print('Y_hat:\n', Y_hat)
+    print('new_V:\n', new_V)
+    print('new_X:\n', new_X)
+    print('new_Y:\n', new_Y)
+    print('new_y_hat:\n', new_y_hat)
