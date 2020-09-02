@@ -226,9 +226,6 @@ def bga_crossover(chr1:str, chr2:str, cxp1:int, cxp2=None)->tuple:
 # ===============================================
 
 def plus_strategy(parents, offspring, func):
-    '''
-
-    '''
     population = np.concatenate([parents, offspring])
     miu = len(parents)
     fitness = [func(x) for x in population]
@@ -239,9 +236,6 @@ def plus_strategy(parents, offspring, func):
     return np.array(res)
 
 def comma_strategy(parents, offspring, func):
-    '''
-
-    '''
     population = offspring
     miu = len(parents)
     fitness = [func(x) for x in population]
@@ -252,6 +246,15 @@ def comma_strategy(parents, offspring, func):
     return np.array(res)
 
 def local_discrete_cx(x1, x2, s1, s2, r):
+    '''
+    Reconbination with local, discrete crossover
+
+    Parameters
+    ----------
+    x1, x2 - 1D np array, selected parent individuals
+    s1, s2 - 1D np array, respective strategy parameter of parent individuals
+    r      - 1D np array, a sequence of random numbers
+    '''
     new_x = np.zeros(len(x1))
     new_s = np.zeros(len(s1))
     for i in len(len(r)):
@@ -286,12 +289,32 @@ def global_intermediate_cx(X, S):
     new_s = S.mean(axis=0)
     return new_x, new_s
 
-def offspring_mutation(x, s, gau_noises):
-    off_x = x + s * gau_noises
+def offspring_mutation(x, s, noises):
+    off_x = x + s * noises
     return off_x
 
+# Examples: Tutorial 6, Q 6
+# --------------------------
+def f(x):
+    return x[0]**2 * np.sin(x[1]) + 2*(x[0]-x[1]) - x[1]**2 * np.cos(x[0])
+X = np.array([[3, 8],[10,-10],[5, -5]])
+S = np.array([[1, 2],[3, 4],[5, 6],])
+r = np.array([0.5, 0.5])
+noises = np.array([1,4])
+new_x1, new_s1 = local_intermediate_cx(X[2], X[0], S[2], S[0], r)
+offsp_x1 = offspring_mutation(new_x1, new_s1, noises)
+offsp_s1 = new_s1 * 0.9
+
+new_x2, new_s2 = local_intermediate_cx(X[1], X[2], S[1], S[2], r)
+offsp_x2 = offspring_mutation(new_x2, new_s2, noises)
+offsp_s2 = new_s2 * 0.9
+
+print(plus_strategy(X, [offsp_x1, offsp_x2], f))
+
+
+
 # ===============================================
-#             Differential Evolution
+#          Differential Evolution
 # ===============================================
 
 def trial_vector(target_vec, diff_vec1, diff_vec2, beta):
