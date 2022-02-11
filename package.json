@@ -14,7 +14,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^2.5.0",
+    "@openzeppelin/contracts": "^4.4.2",
     "element-ui": "^2.13.0",
     "font-awesome": "^4.7.0",
     "truffle-contract": "^4.0.31",
